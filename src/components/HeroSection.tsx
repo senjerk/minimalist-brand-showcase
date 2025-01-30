@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const HeroSection = () => {
   return (
     <section className="min-h-screen flex items-center justify-center bg-white pt-16">
