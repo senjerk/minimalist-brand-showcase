@@ -7,6 +7,7 @@ import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Constructor from "./pages/Constructor";
+import Catalog from "./pages/Catalog";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/constructor" element={<Constructor />} />
               <Route path="/about" element={<About />} />
+              <Route path="/catalog" element={<Catalog />} />
             </Routes>
           </Layout>
         </Router>
