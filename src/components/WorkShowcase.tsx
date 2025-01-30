@@ -1,4 +1,12 @@
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const works = [
   {
@@ -22,35 +30,55 @@ const works = [
 ];
 
 const WorkShowcase = () => {
+  const isMobile = useIsMobile();
+
+  const WorkCard = ({ work }: { work: typeof works[0] }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+    >
+      <img
+        src={work.image}
+        alt={work.title}
+        className="w-full h-64 object-cover"
+      />
+      <div className="p-6">
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          {work.title}
+        </h3>
+        <p className="text-gray-600">{work.description}</p>
+      </div>
+    </motion.div>
+  );
+
   return (
     <section className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
           Наши работы
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {works.map((work) => (
-            <motion.div
-              key={work.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-            >
-              <img
-                src={work.image}
-                alt={work.title}
-                className="w-full h-64 object-cover"
-              />
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {work.title}
-                </h3>
-                <p className="text-gray-600">{work.description}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        
+        {isMobile ? (
+          <Carousel className="w-full max-w-xs mx-auto">
+            <CarouselContent>
+              {works.map((work) => (
+                <CarouselItem key={work.id}>
+                  <WorkCard work={work} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-0" />
+            <CarouselNext className="right-0" />
+          </Carousel>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {works.map((work) => (
+              <WorkCard key={work.id} work={work} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
