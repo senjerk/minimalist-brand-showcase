@@ -17,6 +17,7 @@ const Navbar = () => {
     { title: "Главная", path: "/" },
     { title: "Каталог", path: "/catalog" },
     { title: "Конструктор", path: "/constructor" },
+    { title: "Статусы", path: "/orders" },
     { title: "О нас", path: "/about" }
   ];
 
