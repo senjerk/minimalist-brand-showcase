@@ -57,9 +57,6 @@ const OrderCard = ({ order }: OrderCardProps) => {
           </div>
           <div className="text-right">
             <p className="font-semibold">{statusConfig[order.status].label}</p>
-            <p className="text-lg font-bold">
-              {order.totalAmount.toLocaleString("ru-RU")} ₽
-            </p>
           </div>
         </div>
       </CardHeader>
@@ -84,16 +81,29 @@ const OrderCard = ({ order }: OrderCardProps) => {
               </li>
             ))}
           </ul>
+          <div className="mt-4 text-right">
+            <p className="text-lg font-bold">
+              Итого: {order.totalAmount.toLocaleString("ru-RU")} ₽
+            </p>
+          </div>
         </div>
       </CardContent>
       <CardFooter className="flex justify-end space-x-2">
         {order.status === "pending_payment" && (
-          <Button variant="default">Оплатить</Button>
+          <Button 
+            variant="default"
+            size="lg"
+            className="bg-[#F97316] hover:bg-[#F97316]/90 text-white font-semibold px-8"
+          >
+            Оплатить
+          </Button>
         )}
         {order.status === "shipping" && order.trackingCode && (
           <Button
             variant="outline"
+            size="lg"
             onClick={copyTrackingCode}
+            className="min-w-[200px] bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 text-white border-none"
           >
             {isCopied ? "Скопировано!" : `Трек-код: ${order.trackingCode}`}
           </Button>
