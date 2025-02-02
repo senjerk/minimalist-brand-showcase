@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import CartButton from "@/components/CartButton";
 import {
   Sheet,
   SheetContent,
@@ -46,11 +47,15 @@ const Navbar = () => {
                 {item.title}
               </Link>
             ))}
-            <ThemeToggle />
+            <div className="flex items-center gap-4">
+              <CartButton />
+              <ThemeToggle />
+            </div>
           </div>
 
           {/* Mobile Navigation */}
           <div className="sm:hidden flex items-center gap-2">
+            <CartButton />
             <ThemeToggle />
             <Sheet>
               <SheetTrigger asChild>
