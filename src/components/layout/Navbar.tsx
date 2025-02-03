@@ -1,26 +1,20 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Menu, User } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import CartButton from "@/components/CartButton";
-import { useAuth } from "@/contexts/AuthContext";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const Navbar = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
   
   const navItems = [
     { title: "Главная", path: "/" },
@@ -56,21 +50,7 @@ const Navbar = () => {
             ))}
             <div className="flex items-center gap-4">
               <CartButton />
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative"
-                    onClick={() => {/* Handle profile click */}}
-                  >
-                    <User className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {isAuthenticated ? "Профиль" : "Войти"}
-                </TooltipContent>
-              </Tooltip>
+              <AuthDialog />
               <ThemeToggle />
             </div>
           </div>
@@ -78,14 +58,7 @@ const Navbar = () => {
           {/* Mobile Navigation */}
           <div className="sm:hidden flex items-center gap-2">
             <CartButton />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              onClick={() => {/* Handle profile click */}}
-            >
-              <User className="h-5 w-5" />
-            </Button>
+            <AuthDialog />
             <ThemeToggle />
             <Sheet>
               <SheetTrigger asChild>
