@@ -11,6 +11,7 @@ import About from "./pages/About";
 import Constructor from "./pages/Constructor";
 import Catalog from "./pages/Catalog";
 import OrderStatus from "./pages/OrderStatus";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ function App() {
                   <Route path="/about" element={<About />} />
                   <Route path="/catalog" element={<Catalog />} />
                   <Route path="/orders" element={<OrderStatus />} />
+                  <Route path="/profile" element={<Profile />} />
                 </Routes>
               </Layout>
             </Router>
