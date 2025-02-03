@@ -24,10 +24,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuthStatus = async () => {
     try {
-      const response = await authService.checkAuth();
+      await authService.checkAuth();
       setIsAuthenticated(true);
-    } catch (error) {
-      setIsAuthenticated(false);
+    } catch (error: any) {
+      if (error?.isAuthError) {
+        setIsAuthenticated(false);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -35,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (data: LoginFormData) => {
     try {
-      const response = await authService.login(data);
+      await authService.login(data);
       setIsAuthenticated(true);
       toast({
         title: "Успешно",
@@ -54,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (data: RegisterFormData) => {
     try {
-      const response = await authService.register(data);
+      await authService.register(data);
       setIsAuthenticated(true);
       toast({
         title: "Успешно",
