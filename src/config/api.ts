@@ -3,6 +3,12 @@ export const API_CONFIG = {
   endpoints: {
     products: '/api/catalog/products/',
     categories: '/api/catalog/categories/',
-    colors: '/api/catalog/colors/'
+    colors: '/api/catalog/colors/',
+    auth: {
+      register: '/api/users/register/',
+      login: '/api/users/login/',
+      logout: '/api/users/logout/',
+      isAuth: '/api/users/is_auth/'
+    }
   }
 };
