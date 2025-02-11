@@ -40,21 +40,43 @@ const formSchema = z.object({
   }),
   address: z.string().optional(),
   comment: z.string().optional(),
-  privacyPolicy: z.literal(true, {
-    errorMap: () => ({ message: "Необходимо принять условия" }),
+  privacyPolicy: z.boolean({
+    required_error: "Необходимо принять условия",
   }),
 });
 
 const Checkout = () => {
-  const { items, totalPrice } = useCart();
-  const { isAuthenticated, user } = useAuth();
+  const { items, totalPrice, addItem } = useCart();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [deliveryPrice, setDeliveryPrice] = useState(0);
+  const [deliveryPrice, setDeliveryPrice] = useState(500); // Тестовая стоимость доставки
+
+  // Добавляем тестовые данные при монтировании компонента
+  React.useEffect(() => {
+    if (items.length === 0) {
+      addItem({
+        id: "1",
+        name: "Футболка с принтом",
+        price: 2500,
+        image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80",
+        size: "M",
+        color: "Белый"
+      });
+      addItem({
+        id: "2",
+        name: "Худи с вышивкой",
+        price: 4500,
+        image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80",
+        size: "L",
+        color: "Черный"
+      });
+    }
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: user?.email || "",
+      email: "",
       phone: "",
       fullName: "",
       deliveryType: "pickup",
