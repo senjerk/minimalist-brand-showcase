@@ -9,8 +9,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ProductCard from "@/components/ProductCard";
@@ -27,7 +25,7 @@ const ProductDetail = ({}: ProductDetailProps) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<Size | null>(null);
   const productData = {
-    id: 1, // Changed to number to match Product type
+    id: 1,
     name: "Классическая футболка",
     description: "Удобная футболка из 100% хлопка высшего качества. Подходит для повседневной носки.",
     price: 2999,
@@ -94,6 +92,9 @@ const ProductDetail = ({}: ProductDetailProps) => {
 
   const isLowStock = productData.stock > 0 && productData.stock < 10;
   const isOutOfStock = productData.stock === 0;
+
+  // Состояние для отслеживания текущего слайда
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-12">
@@ -193,17 +194,35 @@ const ProductDetail = ({}: ProductDetailProps) => {
       <div className="space-y-6">
         <h2 className="text-2xl font-bold text-gray-900">Похожие товары</h2>
         {isMobile ? (
-          <div className="relative px-8">
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
+          <div className="relative">
+            <Carousel className="w-full" opts={{
+              align: "start",
+              containScroll: false,
+              dragFree: true
+            }}
+            onSelect={(api) => setCurrentSlide(api.selectedScrollSnap())}>
+              <CarouselContent className="-ml-4">
                 {similarProducts.map((product) => (
-                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
+                  <CarouselItem key={product.id} className="pl-4 basis-4/5">
                     <ProductCard product={product} />
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2" />
-              <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2" />
+              {/* Dots navigation */}
+              <div className="flex justify-center gap-2 mt-4">
+                {similarProducts.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      currentSlide === index ? "bg-primary" : "bg-gray-300"
+                    }`}
+                    onClick={() => {
+                      const api = (document.querySelector('[data-embla-api]') as any)?.__embla;
+                      api?.scrollTo(index);
+                    }}
+                  />
+                ))}
+              </div>
             </Carousel>
           </div>
         ) : (
