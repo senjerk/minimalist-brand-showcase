@@ -11,9 +11,11 @@ import {
 import { useCart } from "@/contexts/CartContext";
 import { ScrollArea } from "./ui/scroll-area";
 import { Link } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function CartButton() {
   const { items, totalItems, totalPrice, removeItem, updateQuantity } = useCart();
+  const isMobile = useIsMobile();
 
   return (
     <Sheet>
@@ -27,7 +29,7 @@ export default function CartButton() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className={isMobile ? "w-full" : undefined}>
         <div className="flex flex-col h-full">
           <SheetHeader>
             <SheetTitle>Корзина</SheetTitle>
