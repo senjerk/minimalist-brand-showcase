@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -95,6 +94,21 @@ const ProductDetail = ({}: ProductDetailProps) => {
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Функция для определения, является ли цвет тёмным
+  const isColorDark = (hexColor: string) => {
+    // Конвертируем HEX в RGB
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
+    
+    // Вычисляем яркость по формуле
+    // (R * 299 + G * 587 + B * 114) / 1000
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    
+    // Если яркость < 128, цвет считается тёмным
+    return brightness < 128;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -136,7 +150,11 @@ const ProductDetail = ({}: ProductDetailProps) => {
                   >
                     {selectedColor === color.name && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <Check className="h-6 w-6 text-black" />
+                        <Check 
+                          className={`h-6 w-6 ${
+                            isColorDark(color.color) ? "text-white" : "text-black"
+                          }`} 
+                        />
                       </div>
                     )}
                     {color.disabled && (
@@ -255,4 +273,3 @@ const ProductDetail = ({}: ProductDetailProps) => {
 };
 
 export default ProductDetail;
-
