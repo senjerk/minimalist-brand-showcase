@@ -14,6 +14,7 @@ import Catalog from "./pages/Catalog";
 import OrderStatus from "./pages/OrderStatus";
 import Profile from "./pages/Profile";
 import ProductDetail from "./pages/ProductDetail";
+import Checkout from "./pages/Checkout";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ function App() {
                   <Route path="/orders" element={<OrderStatus />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/item/:id" element={<ProductDetail />} />
+                  <Route path="/checkout" element={<Checkout />} />
                 </Routes>
               </Layout>
             </Router>
