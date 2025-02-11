@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import { Size } from "@/types/api";
+import { Check, X } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -21,11 +22,10 @@ const ProductDetail = ({}: ProductDetailProps) => {
   const { addItem } = useCart();
   const isMobile = useIsMobile();
   
-  // Placeholder data
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<Size | null>(null);
   const productData = {
-    id: 1,
+    id: "1",
     name: "Классическая футболка",
     description: "Удобная футболка из 100% хлопка высшего качества. Подходит для повседневной носки.",
     price: 2999,
@@ -93,7 +93,6 @@ const ProductDetail = ({}: ProductDetailProps) => {
   const isLowStock = productData.stock > 0 && productData.stock < 10;
   const isOutOfStock = productData.stock === 0;
 
-  // Состояние для отслеживания текущего слайда
   const [currentSlide, setCurrentSlide] = useState(0);
 
   return (
@@ -121,20 +120,35 @@ const ProductDetail = ({}: ProductDetailProps) => {
           {/* Color Selection */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">Цвет</label>
-            <div className="flex gap-2">
+            <div className="flex gap-4">
               {productData.colors.map((color) => (
-                <button
-                  key={color.id}
-                  onClick={() => !color.disabled && setSelectedColor(color.name)}
-                  disabled={color.disabled}
-                  className={`w-8 h-8 rounded-full border-2 ${
-                    selectedColor === color.name
-                      ? "ring-2 ring-offset-2 ring-primary"
-                      : ""
-                  } ${color.disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                  style={{ backgroundColor: color.color }}
-                  title={color.name}
-                />
+                <div key={color.id} className="relative">
+                  <button
+                    onClick={() => !color.disabled && setSelectedColor(color.name)}
+                    disabled={color.disabled}
+                    className={`w-12 h-12 rounded-full border-2 relative ${
+                      selectedColor === color.name
+                        ? "ring-2 ring-offset-2 ring-primary"
+                        : ""
+                    } ${color.disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:ring-2 hover:ring-offset-2 hover:ring-gray-300"}`}
+                    style={{ backgroundColor: color.color }}
+                    title={color.name}
+                  >
+                    {selectedColor === color.name && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Check className="h-6 w-6 text-black" />
+                      </div>
+                    )}
+                    {color.disabled && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <X className="h-6 w-6 text-red-500" />
+                      </div>
+                    )}
+                  </button>
+                  <span className="block text-xs text-center mt-1 text-gray-600">
+                    {color.name}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
@@ -195,12 +209,14 @@ const ProductDetail = ({}: ProductDetailProps) => {
         <h2 className="text-2xl font-bold text-gray-900">Похожие товары</h2>
         {isMobile ? (
           <div className="relative">
-            <Carousel className="w-full" opts={{
-              align: "start",
-              containScroll: false,
-              dragFree: true
-            }}
-            onSelect={(api) => setCurrentSlide(api.selectedScrollSnap())}>
+            <Carousel 
+              className="w-full" 
+              opts={{
+                align: "start",
+                containScroll: false,
+                dragFree: true
+              }}
+            >
               <CarouselContent className="-ml-4">
                 {similarProducts.map((product) => (
                   <CarouselItem key={product.id} className="pl-4 basis-4/5">
@@ -217,6 +233,7 @@ const ProductDetail = ({}: ProductDetailProps) => {
                       currentSlide === index ? "bg-primary" : "bg-gray-300"
                     }`}
                     onClick={() => {
+                      setCurrentSlide(index);
                       const api = (document.querySelector('[data-embla-api]') as any)?.__embla;
                       api?.scrollTo(index);
                     }}
