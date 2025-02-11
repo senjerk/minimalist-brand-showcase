@@ -27,7 +27,7 @@ const ProductDetail = ({}: ProductDetailProps) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<Size | null>(null);
   const productData = {
-    id: id || "1",
+    id: 1, // Changed to number to match Product type
     name: "Классическая футболка",
     description: "Удобная футболка из 100% хлопка высшего качества. Подходит для повседневной носки.",
     price: 2999,
@@ -41,28 +41,28 @@ const ProductDetail = ({}: ProductDetailProps) => {
     image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800"
   };
 
-  // Placeholder similar products data
+  // Placeholder similar products data with number IDs
   const similarProducts = [
     {
-      id: "2",
+      id: 2,
       name: "Футболка с принтом",
       price: 3499,
       image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9"
     },
     {
-      id: "3",
+      id: 3,
       name: "Базовая футболка",
       price: 2499,
       image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901"
     },
     {
-      id: "4",
+      id: 4,
       name: "Спортивная футболка",
       price: 3999,
       image: "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1"
     },
     {
-      id: "5",
+      id: 5,
       name: "Футболка с логотипом",
       price: 2799,
       image: "https://images.unsplash.com/photo-1498936178812-4b2e558d2937"
@@ -193,17 +193,19 @@ const ProductDetail = ({}: ProductDetailProps) => {
       <div className="space-y-6">
         <h2 className="text-2xl font-bold text-gray-900">Похожие товары</h2>
         {isMobile ? (
-          <Carousel className="w-full">
-            <CarouselContent>
-              {similarProducts.map((product) => (
-                <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/4">
-                  <ProductCard product={product} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+          <div className="relative px-8">
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {similarProducts.map((product) => (
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
+                    <ProductCard product={product} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2" />
+              <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2" />
+            </Carousel>
+          </div>
         ) : (
           <div className="grid grid-cols-4 gap-6">
             {similarProducts.map((product) => (
