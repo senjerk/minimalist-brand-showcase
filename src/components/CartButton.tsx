@@ -36,11 +36,11 @@ export default function CartButton() {
           </SheetHeader>
           
           <div className="flex-1 flex flex-col h-[calc(100vh-12rem)]">
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1 relative">
               {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-muted-foreground">
                   <ShoppingCart className="h-12 w-12 mb-4" />
-                  <p>Ваша корзина пуста</p>
+                  <p className="text-lg">Ваша корзина пуста</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
