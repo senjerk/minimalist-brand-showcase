@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import { Size } from "@/types/api";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { useIsMobile } from "@/hooks/use-mobile";
+import ProductCard from "@/components/ProductCard";
 
 interface ProductDetailProps {}
 
@@ -12,6 +21,7 @@ const ProductDetail = ({}: ProductDetailProps) => {
   const { id } = useParams();
   const { toast } = useToast();
   const { addItem } = useCart();
+  const isMobile = useIsMobile();
   
   // Placeholder data
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -30,6 +40,34 @@ const ProductDetail = ({}: ProductDetailProps) => {
     sizes: ["S", "M", "L", "XL"] as Size[],
     image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800"
   };
+
+  // Placeholder similar products data
+  const similarProducts = [
+    {
+      id: "2",
+      name: "Футболка с принтом",
+      price: 3499,
+      image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9"
+    },
+    {
+      id: "3",
+      name: "Базовая футболка",
+      price: 2499,
+      image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901"
+    },
+    {
+      id: "4",
+      name: "Спортивная футболка",
+      price: 3999,
+      image: "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1"
+    },
+    {
+      id: "5",
+      name: "Футболка с логотипом",
+      price: 2799,
+      image: "https://images.unsplash.com/photo-1498936178812-4b2e558d2937"
+    }
+  ];
 
   const handleAddToCart = () => {
     if (!selectedColor || !selectedSize) {
@@ -58,7 +96,7 @@ const ProductDetail = ({}: ProductDetailProps) => {
   const isOutOfStock = productData.stock === 0;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Image */}
         <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
@@ -150,8 +188,33 @@ const ProductDetail = ({}: ProductDetailProps) => {
           </div>
         </div>
       </div>
+
+      {/* Similar Products Section */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-gray-900">Похожие товары</h2>
+        {isMobile ? (
+          <Carousel className="w-full">
+            <CarouselContent>
+              {similarProducts.map((product) => (
+                <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/4">
+                  <ProductCard product={product} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        ) : (
+          <div className="grid grid-cols-4 gap-6">
+            {similarProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 export default ProductDetail;
+
