@@ -1,11 +1,18 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { authService } from '@/services/auth';
 import { LoginFormData, RegisterFormData } from '@/types/auth';
 
+interface User {
+  email: string;
+  name?: string;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
+  user: User | null;
   login: (data: LoginFormData) => Promise<void>;
   register: (data: RegisterFormData) => Promise<void>;
   logout: () => Promise<void>;
@@ -16,6 +23,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -29,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       if (error?.isAuthError) {
         setIsAuthenticated(false);
+        setUser(null);
       }
     } finally {
       setIsLoading(false);
@@ -39,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await authService.login(data);
       setIsAuthenticated(true);
+      setUser({ email: data.email });
       toast({
         title: "Успешно",
         description: "Вы успешно вошли в систему",
@@ -58,6 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await authService.register(data);
       setIsAuthenticated(true);
+      setUser({ email: data.email });
       toast({
         title: "Успешно",
         description: "Регистрация прошла успешно",
@@ -77,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await authService.logout();
       setIsAuthenticated(false);
+      setUser(null);
       toast({
         title: "Успешно",
         description: "Вы вышли из системы",
@@ -95,6 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         isAuthenticated,
         isLoading,
+        user,
         login,
         register,
         logout,

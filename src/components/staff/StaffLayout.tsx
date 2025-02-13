@@ -1,18 +1,14 @@
 
-import { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import StaffNavbar from "./StaffNavbar";
 import Footer from "@/components/layout/Footer";
 
-interface StaffLayoutProps {
-  children: ReactNode;
-}
-
-const StaffLayout = ({ children }: StaffLayoutProps) => {
+const StaffLayout = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <StaffNavbar />
       <main className="flex-1 pt-16">
-        {children}
+        <Outlet />
       </main>
       <Footer />
     </div>
