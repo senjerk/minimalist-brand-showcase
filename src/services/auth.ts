@@ -43,9 +43,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     response => response,
     error => {
-        if (error.response && error.response.status === 403) {
-            window.location.href = '/';
-        }
+        // Удалили автоматическое перенаправление при 403 ошибке
         return Promise.reject(error);
     }
 );
