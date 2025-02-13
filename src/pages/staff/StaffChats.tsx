@@ -57,6 +57,18 @@ const mockChats: Chat[] = [
 const mockMessages: Record<string, Message[]> = {
   "1": [
     {
+      id: "system1",
+      text: "Пользователь Анна Смирнова присоединился к чату",
+      isOwn: false,
+      isRead: true,
+      isSystem: true,
+      timestamp: "2024-02-13T14:29:00",
+      sender: {
+        id: "system",
+        name: "Система"
+      }
+    },
+    {
       id: "m1",
       text: "Добрый день! Подскажите, пожалуйста, по заказу",
       isOwn: false,
@@ -76,8 +88,7 @@ const mockMessages: Record<string, Message[]> = {
       timestamp: "2024-02-13T14:32:00",
       sender: {
         id: "staff1",
-        name: "Менеджер",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Manager"
+        name: "Менеджер"
       }
     },
     {
@@ -110,22 +121,34 @@ const mockMessages: Record<string, Message[]> = {
 };
 
 const ChatMessage = ({ message }: { message: Message }) => {
+  if (message.isSystem) {
+    return (
+      <div className="flex justify-center my-4">
+        <span className="text-sm text-muted-foreground bg-accent px-3 py-1 rounded-full">
+          {message.text}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className={cn(
       "flex gap-3 mb-4",
       message.isOwn ? "flex-row-reverse" : "flex-row"
     )}>
-      <Avatar className="w-8 h-8">
-        <AvatarImage src={message.sender.avatar} />
-        <AvatarFallback>{message.sender.name[0]}</AvatarFallback>
-      </Avatar>
+      {!message.isOwn && (
+        <Avatar className="w-8 h-8">
+          <AvatarImage src={message.sender.avatar} />
+          <AvatarFallback>{message.sender.name[0]}</AvatarFallback>
+        </Avatar>
+      )}
       <div className={cn(
         "max-w-[70%]",
         message.isOwn ? "items-end" : "items-start"
       )}>
         <div className="flex flex-col">
           <span className="text-sm text-muted-foreground mb-1">
-            {message.sender.name}
+            {!message.isOwn && message.sender.name}
           </span>
           <div className={cn(
             "rounded-lg p-3",

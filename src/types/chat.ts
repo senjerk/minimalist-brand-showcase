@@ -5,6 +5,7 @@ export interface Message {
   isOwn: boolean;
   isRead: boolean;
   timestamp: string;
+  isSystem?: boolean;
   sender: {
     id: string;
     name: string;
