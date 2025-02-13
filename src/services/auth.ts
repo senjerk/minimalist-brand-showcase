@@ -5,47 +5,38 @@ import { API_CONFIG } from '@/config/api';
 import { LoginFormData, RegisterFormData, AuthResponse } from '@/types/auth';
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
-  withCredentials: true,
-  xsrfCookieName: 'csrftoken',
-  xsrfHeaderName: 'X-CSRFToken'
+    baseURL: "http://127.0.0.1:8000/api/",
+    withCredentials: true
 });
 
 api.interceptors.request.use(
-  async (config) => {
-    let csrf_token = Cookies.get('csrftoken');
-    if (!csrf_token) {
-      try {
-        await axios.get('http://127.0.0.1:8000/api/get-csrf-token/', { 
-          withCredentials: true 
-        });
-        csrf_token = Cookies.get('csrftoken');
-        if (csrf_token && config.headers) {
-          config.headers['X-CSRFToken'] = csrf_token;
+    async (config) => {
+        const csrf_token = Cookies.get('csrftoken');
+        if (!csrf_token) {
+            try {
+                await axios.get('http://127.0.0.1:8000/api/get-csrf-token/', { withCredentials: true });
+                config.headers['X-CSRFToken'] = Cookies.get('csrftoken');
+            } catch (error) {
+                return Promise.reject(error);
+            }
+        } else {
+            config.headers['X-CSRFToken'] = csrf_token;
         }
-      } catch (error) {
-        console.error('Failed to fetch CSRF token:', error);
+        return config;
+    },
+    (error) => {
         return Promise.reject(error);
-      }
-    } else if (config.headers) {
-      config.headers['X-CSRFToken'] = csrf_token;
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
 );
 
 api.interceptors.response.use(
-  response => response,
-  error => {
-    console.error('API Error:', error);
-    if (error.response && error.response.status === 403) {
-      window.location.href = '/';
+    response => response,
+    error => {
+        if (error.response && error.response.status === 403) {
+            window.location.href = '/';
+        }
+        return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
 );
 
 const handleResponse = async (response: any): Promise<AuthResponse> => {

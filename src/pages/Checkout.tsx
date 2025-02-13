@@ -40,10 +40,8 @@ const formSchema = z.object({
   }),
   address: z.string().optional(),
   comment: z.string().optional(),
-  privacyPolicy: z.boolean({
-    required_error: "Необходимо принять условия",
-  }).refine(val => val === true, {
-    message: "Необходимо принять условия",
+  privacyPolicy: z.literal(true, {
+    errorMap: () => ({ message: "Необходимо принять условия" }),
   }),
 });
 
