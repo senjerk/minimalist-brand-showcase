@@ -1,8 +1,25 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import OrderCard from "@/components/OrderCard";
-import { Order } from "@/types/order";
+import { Order, OrderStatus } from "@/types/order";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const statusConfig: Record<OrderStatus, { label: string }> = {
+  pending_payment: { label: "Ожидание оплаты" },
+  awaiting_confirmation: { label: "Ожидание подтверждения" },
+  processing: { label: "В обработке" },
+  shipping: { label: "Доставляется" },
+  delivered: { label: "Доставлен" },
+  cancelled: { label: "Отменён" },
+};
 
 // Временные моковые данные
 export const mockOrders: Order[] = [
@@ -76,6 +93,8 @@ export const mockOrders: Order[] = [
 ];
 
 const StaffOrders = () => {
+  const [selectedStatus, setSelectedStatus] = useState<string>("_all");
+
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders'],
     queryFn: async () => {
@@ -83,6 +102,10 @@ const StaffOrders = () => {
       return mockOrders;
     }
   });
+
+  const filteredOrders = orders?.filter(order => 
+    selectedStatus === "_all" || order.status === selectedStatus
+  );
 
   if (isLoading) {
     return (
@@ -99,11 +122,34 @@ const StaffOrders = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Управление заказами</h1>
-      <div className="space-y-4">
-        {orders?.map((order) => (
-          <OrderCard key={order.id} order={order} />
-        ))}
+      <div className="flex flex-col space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Управление заказами</h1>
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <SelectTrigger className="w-[240px]">
+              <SelectValue placeholder="Фильтр по статусу" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all">Все заказы</SelectItem>
+              {Object.entries(statusConfig).map(([value, { label }]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-4">
+          {filteredOrders?.map((order) => (
+            <OrderCard key={order.id} order={order} />
+          ))}
+          {filteredOrders?.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              Заказы не найдены
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
