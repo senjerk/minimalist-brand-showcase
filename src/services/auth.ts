@@ -1,75 +1,87 @@
+
+import axios from "axios";
+import Cookies from 'js-cookie';
 import { API_CONFIG } from '@/config/api';
 import { LoginFormData, RegisterFormData, AuthResponse } from '@/types/auth';
 
-const getCsrfToken = (): string | null => {
-  const name = 'csrftoken';
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-  return null;
-};
+const api = axios.create({
+  baseURL: API_CONFIG.baseURL,
+  withCredentials: true
+});
 
-const handleResponse = async (response: Response): Promise<AuthResponse> => {
-  const data = await response.json();
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw { ...data, isAuthError: true };
+api.interceptors.request.use(
+  async (config) => {
+    const csrf_token = Cookies.get('csrftoken');
+    if (!csrf_token) {
+      try {
+        await axios.get(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.csrf}`, { withCredentials: true });
+        config.headers['X-CSRFToken'] = Cookies.get('csrftoken');
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    } else {
+      config.headers['X-CSRFToken'] = csrf_token;
     }
-    throw data;
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return data;
+);
+
+const handleResponse = async (response: any): Promise<AuthResponse> => {
+  if (response.data) {
+    return response.data;
+  }
+  throw response;
 };
 
 export const authService = {
   async register(formData: RegisterFormData): Promise<AuthResponse> {
-    const csrfToken = getCsrfToken();
-    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.auth.register}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken || '',
-      },
-      credentials: 'include',
-      body: JSON.stringify(formData),
-    });
-    return handleResponse(response);
+    try {
+      const response = await api.post(API_CONFIG.endpoints.auth.register, formData);
+      return handleResponse(response);
+    } catch (error: any) {
+      if (error.response?.data) {
+        throw { ...error.response.data, isAuthError: error.response.status === 401 };
+      }
+      throw error;
+    }
   },
 
   async login(formData: LoginFormData): Promise<AuthResponse> {
-    const csrfToken = getCsrfToken();
-    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.auth.login}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken || '',
-      },
-      credentials: 'include',
-      body: JSON.stringify(formData),
-    });
-    return handleResponse(response);
+    try {
+      const response = await api.post(API_CONFIG.endpoints.auth.login, formData);
+      return handleResponse(response);
+    } catch (error: any) {
+      if (error.response?.data) {
+        throw { ...error.response.data, isAuthError: error.response.status === 401 };
+      }
+      throw error;
+    }
   },
 
   async logout(): Promise<AuthResponse> {
-    const csrfToken = getCsrfToken();
-    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.auth.logout}`, {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': csrfToken || '',
-      },
-      credentials: 'include',
-    });
-    return handleResponse(response);
+    try {
+      const response = await api.post(API_CONFIG.endpoints.auth.logout);
+      return handleResponse(response);
+    } catch (error: any) {
+      if (error.response?.data) {
+        throw { ...error.response.data, isAuthError: error.response.status === 401 };
+      }
+      throw error;
+    }
   },
 
   async checkAuth(): Promise<AuthResponse> {
-    const csrfToken = getCsrfToken();
-    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.auth.isAuth}`, {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': csrfToken || '',
-      },
-      credentials: 'include',
-    });
-    return handleResponse(response);
+    try {
+      const response = await api.post(API_CONFIG.endpoints.auth.isAuth);
+      return handleResponse(response);
+    } catch (error: any) {
+      if (error.response?.data) {
+        throw { ...error.response.data, isAuthError: error.response.status === 401 };
+      }
+      throw error;
+    }
   },
 };

@@ -1,14 +1,18 @@
+
 export interface AuthError {
-  fields: {
+  fields?: {
     [key: string]: string;
   };
-  form_error: string | null;
+  form_error?: string;
 }
 
 export interface AuthResponse {
   errors?: AuthError;
-  message: string;
-  data?: any;
+  message?: string;
+  data?: {
+    email?: string;
+    username?: string;
+  };
 }
 
 export interface LoginFormData {
