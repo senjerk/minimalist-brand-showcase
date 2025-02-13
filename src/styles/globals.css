@@ -1,0 +1,10 @@
+/* Добавьте эти стили в ваш глобальный CSS файл */
+.status-WP { @apply bg-yellow-500; }
+.status-CN { @apply bg-red-500; }
+.status-PR { @apply bg-blue-500; }
+.status-SH { @apply bg-green-300; }
+.status-DL { @apply bg-green-500; }
+
+.payment-status-PD { @apply bg-green-500; }
+.payment-status-PN { @apply bg-yellow-500; }
+.payment-status-RF { @apply bg-red-500; } 

@@ -1,23 +1,37 @@
 import { motion } from "framer-motion";
 import { Product } from "@/types/api";
+import { useState } from "react";
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className="group relative overflow-hidden rounded-lg bg-white p-4 shadow-sm transition-shadow hover:shadow-md h-full flex flex-col"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
+      <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 relative">
         <img
-          src={product.image}
+          src={product.main_image}
           alt={product.name}
-          className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+          className={`absolute h-full w-full object-cover object-center transition-opacity duration-300 ${
+            isHovered ? 'opacity-0' : 'opacity-100'
+          }`}
+        />
+        <img
+          src={product.secondary_image}
+          alt={`${product.name} - второе фото`}
+          className={`absolute h-full w-full object-cover object-center transition-opacity duration-300 ${
+            isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
         />
       </div>
       <div className="mt-4 space-y-2 flex-grow">

@@ -132,7 +132,8 @@ const Catalog = () => {
                   key={product.id}
                   product={{
                     ...product,
-                    image: `${API_CONFIG.baseURL}${product.image}`
+                    main_image: `${API_CONFIG.baseURL}${product.main_image}`,
+                    secondary_image: `${API_CONFIG.baseURL}${product.secondary_image}`
                   }} 
                 />
               ))}

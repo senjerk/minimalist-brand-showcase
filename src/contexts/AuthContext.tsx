@@ -1,18 +1,11 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { authService } from '@/services/auth';
 import { LoginFormData, RegisterFormData } from '@/types/auth';
-
-interface User {
-  email?: string;
-  username: string;
-}
+import { addCSRFToken } from '@/lib/csrf';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: User | null;
   login: (data: LoginFormData) => Promise<void>;
   register: (data: RegisterFormData) => Promise<void>;
   logout: () => Promise<void>;
@@ -20,10 +13,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const API_BASE_URL = 'http://localhost:8000';
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -32,19 +26,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuthStatus = async () => {
     try {
-      const response = await authService.checkAuth();
-      if (response.data) {
+      const headers = await addCSRFToken();
+      const response = await fetch(`${API_BASE_URL}/api/users/is_auth/`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+      });
+
+      if (response.ok) {
         setIsAuthenticated(true);
-        setUser({
-          username: response.data.username || '',
-          email: response.data.email
-        });
+      } else {
+        setIsAuthenticated(false);
       }
     } catch (error: any) {
-      if (error?.isAuthError) {
-        setIsAuthenticated(false);
-        setUser(null);
-      }
+      setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
     }
@@ -52,17 +47,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (data: LoginFormData) => {
     try {
-      const response = await authService.login(data);
-      if (response.data) {
+      const headers = await addCSRFToken();
+      const response = await fetch(`${API_BASE_URL}/api/users/login/`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+      
+      if (response.ok) {
         setIsAuthenticated(true);
-        setUser({
-          username: response.data.username || data.username,
-          email: response.data.email
-        });
         toast({
           title: "Успешно",
           description: "Вы успешно вошли в систему",
         });
+      } else {
+        const errorData = await response.json();
+        const errorMessage = errorData.detail || "Ошибка при входе";
+        toast({
+          variant: "destructive",
+          title: "Ошибка",
+          description: errorMessage,
+        });
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       const errorMessage = error.message || "Ошибка при входе";
@@ -77,17 +84,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (data: RegisterFormData) => {
     try {
-      const response = await authService.register(data);
-      if (response.data) {
+      const headers = await addCSRFToken();
+      const response = await fetch(`${API_BASE_URL}/api/users/register/`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+      
+      if (response.ok) {
         setIsAuthenticated(true);
-        setUser({
-          username: data.username,
-          email: data.email
-        });
         toast({
           title: "Успешно",
           description: "Регистрация прошла успешно",
         });
+      } else {
+        const errorData = await response.json();
+        const errorMessage = errorData.detail || "Ошибка при регистрации";
+        toast({
+          variant: "destructive",
+          title: "Ошибка",
+          description: errorMessage,
+        });
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       const errorMessage = error.message || "Ошибка при регистрации";
@@ -102,13 +121,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await authService.logout();
-      setIsAuthenticated(false);
-      setUser(null);
-      toast({
-        title: "Успешно",
-        description: "Вы вышли из системы",
+      const headers = await addCSRFToken();
+      const response = await fetch(`${API_BASE_URL}/api/users/logout/`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
       });
+
+      if (response.ok) {
+        setIsAuthenticated(false);
+        toast({
+          title: "Успешно",
+          description: "Вы вышли из системы",
+        });
+      } else {
+        throw new Error("Ошибка при выходе из системы");
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -123,7 +151,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         isAuthenticated,
         isLoading,
-        user,
         login,
         register,
         logout,
