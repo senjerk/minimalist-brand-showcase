@@ -19,6 +19,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import StaffHome from "./pages/staff/StaffHome";
 import StaffOrders from "./pages/staff/StaffOrders";
+import StaffOrderDetail from "./pages/staff/StaffOrderDetail";
 import StaffChats from "./pages/staff/StaffChats";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ function App() {
                 }>
                   <Route path="/staff" element={<StaffHome />} />
                   <Route path="/staff/orders" element={<StaffOrders />} />
+                  <Route path="/staff/orders/:id" element={<StaffOrderDetail />} />
                   <Route path="/staff/chats" element={<StaffChats />} />
                 </Route>
               </Routes>

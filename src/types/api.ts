@@ -1,3 +1,4 @@
+
 export interface ProductResponse {
   data: {
     count: number;
@@ -12,6 +13,8 @@ export interface Product {
   id: number;
   name: string;
   image: string;
+  main_image: string;
+  secondary_image: string;
   price: number;
 }
 

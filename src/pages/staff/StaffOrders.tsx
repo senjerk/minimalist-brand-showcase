@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -6,7 +5,7 @@ import OrderCard from "@/components/OrderCard";
 import { Order } from "@/types/order";
 
 // Временные моковые данные
-const mockOrders: Order[] = [
+export const mockOrders: Order[] = [
   {
     id: "ORD-001",
     status: "processing",
