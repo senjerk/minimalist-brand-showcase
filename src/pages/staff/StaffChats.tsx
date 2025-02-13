@@ -1,15 +1,14 @@
-
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, CheckCheck, Send } from "lucide-react";
+import { Check, CheckCheck, Send, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Chat, Message } from "@/types/chat";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-// Тестовые данные
 const mockChats: Chat[] = [
   {
     id: "1",
@@ -175,11 +174,11 @@ const ChatList = ({
               <AvatarImage src={chat.user.avatar} />
               <AvatarFallback>{chat.user.name[0]}</AvatarFallback>
             </Avatar>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex justify-between items-center">
-                <h3 className="font-semibold">{chat.user.name}</h3>
+                <h3 className="font-semibold truncate flex-1">{chat.user.name}</h3>
                 {chat.unreadCount > 0 && (
-                  <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex-shrink-0 self-center ml-2">
                     {chat.unreadCount}
                   </span>
                 )}
@@ -200,6 +199,7 @@ const ChatList = ({
 const StaffChats = () => {
   const [selectedChatId, setSelectedChatId] = useState<string>();
   const [newMessage, setNewMessage] = useState("");
+  const isMobile = useIsMobile();
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -207,64 +207,79 @@ const StaffChats = () => {
     setNewMessage("");
   };
 
+  const handleBackToList = () => {
+    setSelectedChatId(undefined);
+  };
+
+  const selectedChat = mockChats.find(c => c.id === selectedChatId);
+
   return (
     <div className="container mx-auto px-4 py-8 h-[calc(100vh-4rem)]">
-      <div className="grid grid-cols-[300px_1fr] gap-6 h-full">
-        {/* Список чатов */}
-        <div className="border-r pr-6">
-          <h2 className="text-xl font-bold mb-4">Чаты</h2>
-          <ChatList 
-            chats={mockChats}
-            selectedChatId={selectedChatId}
-            onChatSelect={setSelectedChatId}
-          />
-        </div>
-
-        {/* Область чата */}
-        <div className="flex flex-col h-full">
-          {selectedChatId ? (
-            <>
-              {/* Заголовок чата */}
-              <div className="border-b pb-4 mb-4">
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage src={mockChats.find(c => c.id === selectedChatId)?.user.avatar} />
-                    <AvatarFallback>
-                      {mockChats.find(c => c.id === selectedChatId)?.user.name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <h2 className="text-xl font-bold">
-                    {mockChats.find(c => c.id === selectedChatId)?.user.name}
-                  </h2>
+      <div className={cn(
+        "h-full",
+        isMobile ? "grid grid-cols-1" : "grid grid-cols-[300px_1fr] gap-6"
+      )}>
+        {(!isMobile || !selectedChatId) && (
+          <div className={cn(
+            "border-r pr-6",
+            isMobile && "pr-0 border-r-0"
+          )}>
+            <h2 className="text-xl font-bold mb-4">Чаты</h2>
+            <ChatList 
+              chats={mockChats}
+              selectedChatId={selectedChatId}
+              onChatSelect={setSelectedChatId}
+            />
+          </div>
+        )}
+        {(!isMobile || selectedChatId) && (
+          <div className="flex flex-col h-full">
+            {selectedChatId && selectedChat ? (
+              <>
+                <div className="border-b pb-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    {isMobile && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={handleBackToList}
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Avatar>
+                      <AvatarImage src={selectedChat.user.avatar} />
+                      <AvatarFallback>{selectedChat.user.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <h2 className="text-xl font-bold truncate">
+                      {selectedChat.user.name}
+                    </h2>
+                  </div>
                 </div>
+                <ScrollArea className="flex-1 pr-4">
+                  {mockMessages[selectedChatId]?.map((message) => (
+                    <ChatMessage key={message.id} message={message} />
+                  ))}
+                </ScrollArea>
+                <div className="mt-4 flex gap-2">
+                  <Input
+                    placeholder="Введите сообщение..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  />
+                  <Button onClick={handleSendMessage}>
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+              </>
+            ) : !isMobile && (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                Выберите чат для начала общения
               </div>
-
-              {/* Сообщения */}
-              <ScrollArea className="flex-1 pr-4">
-                {mockMessages[selectedChatId]?.map((message) => (
-                  <ChatMessage key={message.id} message={message} />
-                ))}
-              </ScrollArea>
-
-              {/* Поле ввода */}
-              <div className="mt-4 flex gap-2">
-                <Input
-                  placeholder="Введите сообщение..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                />
-                <Button onClick={handleSendMessage}>
-                  <Send className="w-4 h-4" />
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              Выберите чат для начала общения
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
