@@ -6,6 +6,7 @@ export const API_CONFIG = {
     products: '/api/catalog/products/',
     categories: '/api/catalog/categories/',
     colors: '/api/catalog/colors/',
+    orders: '/api/orders/',
     auth: {
       register: '/api/users/register/',
       login: '/api/users/login/',

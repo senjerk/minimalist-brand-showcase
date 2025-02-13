@@ -1,3 +1,4 @@
+
 export type OrderStatus = 
   | "pending_payment"
   | "awaiting_confirmation"
@@ -23,5 +24,8 @@ export interface Order {
     name: string;
     quantity: number;
     price: number;
+    color?: string;
+    size?: string;
   }[];
+  comments?: string[];
 }
