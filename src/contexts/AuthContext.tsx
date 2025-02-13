@@ -5,8 +5,8 @@ import { authService } from '@/services/auth';
 import { LoginFormData, RegisterFormData } from '@/types/auth';
 
 interface User {
-  email?: string;
-  username: string;
+  email: string;
+  name?: string;
 }
 
 interface AuthContextType {
@@ -32,14 +32,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuthStatus = async () => {
     try {
-      const response = await authService.checkAuth();
-      if (response.data) {
-        setIsAuthenticated(true);
-        setUser({
-          username: response.data.username || '',
-          email: response.data.email
-        });
-      }
+      await authService.checkAuth();
+      setIsAuthenticated(true);
     } catch (error: any) {
       if (error?.isAuthError) {
         setIsAuthenticated(false);
@@ -52,18 +46,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (data: LoginFormData) => {
     try {
-      const response = await authService.login(data);
-      if (response.data) {
-        setIsAuthenticated(true);
-        setUser({
-          username: data.username,
-          email: response.data.email
-        });
-        toast({
-          title: "Успешно",
-          description: "Вы успешно вошли в систему",
-        });
-      }
+      await authService.login(data);
+      setIsAuthenticated(true);
+      setUser({ email: data.email });
+      toast({
+        title: "Успешно",
+        description: "Вы успешно вошли в систему",
+      });
     } catch (error: any) {
       const errorMessage = error.message || "Ошибка при входе";
       toast({
@@ -77,18 +66,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (data: RegisterFormData) => {
     try {
-      const response = await authService.register(data);
-      if (response.data) {
-        setIsAuthenticated(true);
-        setUser({
-          username: data.username,
-          email: data.email
-        });
-        toast({
-          title: "Успешно",
-          description: "Регистрация прошла успешно",
-        });
-      }
+      await authService.register(data);
+      setIsAuthenticated(true);
+      setUser({ email: data.email });
+      toast({
+        title: "Успешно",
+        description: "Регистрация прошла успешно",
+      });
     } catch (error: any) {
       const errorMessage = error.message || "Ошибка при регистрации";
       toast({
