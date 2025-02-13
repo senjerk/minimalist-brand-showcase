@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.data) {
         setIsAuthenticated(true);
         setUser({
-          username: data.username,
+          username: response.data.username || data.username,
           email: response.data.email
         });
         toast({

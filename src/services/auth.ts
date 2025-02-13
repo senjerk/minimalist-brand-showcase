@@ -1,7 +1,6 @@
 
 import axios from "axios";
 import Cookies from 'js-cookie';
-import { API_CONFIG } from '@/config/api';
 import { LoginFormData, RegisterFormData, AuthResponse } from '@/types/auth';
 
 const api = axios.create({
@@ -9,19 +8,31 @@ const api = axios.create({
     withCredentials: true
 });
 
+// Первый запрос для получения CSRF токена
+const fetchCsrfToken = async () => {
+    try {
+        await axios.get('http://127.0.0.1:8000/api/get-csrf-token/', {
+            withCredentials: true
+        });
+        return Cookies.get('csrftoken');
+    } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+        throw error;
+    }
+};
+
 api.interceptors.request.use(
     async (config) => {
-        const csrf_token = Cookies.get('csrftoken');
+        let csrf_token = Cookies.get('csrftoken');
+        
         if (!csrf_token) {
-            try {
-                await axios.get('http://127.0.0.1:8000/api/get-csrf-token/', { withCredentials: true });
-                config.headers['X-CSRFToken'] = Cookies.get('csrftoken');
-            } catch (error) {
-                return Promise.reject(error);
-            }
-        } else {
+            csrf_token = await fetchCsrfToken();
+        }
+        
+        if (csrf_token) {
             config.headers['X-CSRFToken'] = csrf_token;
         }
+        
         return config;
     },
     (error) => {
