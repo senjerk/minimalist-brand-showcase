@@ -1,16 +1,19 @@
+
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
 import { OrdersResponse, Order } from "@/types/api";
-import { Loader2, LogOut } from "lucide-react";
+import { Loader2, LogOut, User, List, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 const Profile = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState<'orders' | 'settings'>('orders');
 
   const { data: ordersData, isLoading } = useQuery<OrdersResponse>({
     queryKey: ['orders'],
@@ -51,6 +54,7 @@ const Profile = () => {
     }
   };
 
+  // Компонент для отдельного заказа (оставляем без изменений)
   const OrderCard = ({ order }: { order: Order }) => {
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
 
@@ -132,21 +136,82 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Личный кабинет</h1>
+      {/* Информация о пользователе */}
+      <div className="mb-8 p-6 bg-muted rounded-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <User className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold">{user?.email || 'Пользователь'}</h2>
+              <p className="text-muted-foreground">ID: {user?.id || 'N/A'}</p>
+            </div>
+          </div>
           <Button 
             variant="destructive" 
             onClick={handleLogout}
             className="flex items-center gap-2"
           >
             <LogOut className="h-4 w-4" />
-            Выйти
+            Выйти из аккаунта
           </Button>
         </div>
+      </div>
 
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Мои заказы</h2>
+      {/* Карточки навигации */}
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <Card 
+          className={`cursor-pointer transition-all hover:shadow-lg ${activeSection === 'orders' ? 'border-primary' : ''}`}
+          onClick={() => setActiveSection('orders')}
+        >
+          <CardHeader>
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center mb-4">
+              <List className="w-6 h-6 text-white" />
+            </div>
+            <CardTitle>История заказов</CardTitle>
+            <CardDescription>
+              Просмотр и отслеживание ваших заказов
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90"
+            >
+              Открыть
+              <List className="w-4 h-4 ml-2" />
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className={`cursor-pointer transition-all hover:shadow-lg ${activeSection === 'settings' ? 'border-primary' : ''}`}
+          onClick={() => setActiveSection('settings')}
+        >
+          <CardHeader>
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-4">
+              <Settings className="w-6 h-6 text-white" />
+            </div>
+            <CardTitle>Настройки профиля</CardTitle>
+            <CardDescription>
+              Управление настройками вашего аккаунта
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
+            >
+              Открыть
+              <Settings className="w-4 h-4 ml-2" />
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Контент секции */}
+      {activeSection === 'orders' && (
+        <div>
+          <h2 className="text-2xl font-bold mb-6">История заказов</h2>
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -163,17 +228,18 @@ const Profile = () => {
             </div>
           )}
         </div>
+      )}
 
+      {activeSection === 'settings' && (
         <div>
           <h2 className="text-2xl font-bold mb-6">Настройки профиля</h2>
           <div className="bg-white rounded-lg shadow p-6">
-            {/* Здесь можно добавить настройки профиля, если они нужны */}
             <p className="text-gray-500">
               Дополнительные настройки профиля появятся в ближайшее время
             </p>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
