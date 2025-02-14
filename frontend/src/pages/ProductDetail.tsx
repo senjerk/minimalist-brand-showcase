@@ -5,13 +5,15 @@ import { API_CONFIG } from "@/config/api";
 import { ProductDetailResponse, Garment } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const [selectedGarment, setSelectedGarment] = useState<Garment | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { addItem } = useCart();
 
   const { data: productData, isLoading } = useQuery<ProductDetailResponse>({
     queryKey: ['product', id],
@@ -51,7 +53,7 @@ const ProductDetail = () => {
 
   const getStockText = (count: number) => {
     if (count === 0) return "Нету в наличии";
-    return `В ��аличии: ${count} шт.`;
+    return `В наличии: ${count} шт.`;
   };
 
   if (isLoading) {
@@ -90,12 +92,44 @@ const ProductDetail = () => {
     );
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedGarment) {
       toast.error("Пожалуйста, выберите размер и цвет");
       return;
     }
-    toast.success("Товар добавлен в корзину");
+
+    try {
+      const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          product_id: product.id,
+          garment_id: selectedGarment.id,
+          quantity: 1,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add to cart');
+      }
+
+      addItem({
+        id: `${product.id}-${selectedGarment.id}`,
+        name: product.name,
+        price: selectedGarment.price,
+        quantity: 1,
+        image: getFullImageUrl(product.main_image),
+        color: selectedGarment.color.name,
+        size: selectedGarment.size,
+      });
+
+      toast.success("Товар добавлен в корзину");
+    } catch (error) {
+      toast.error("Не удалось добавить товар в корзину");
+    }
   };
 
   const getFullImageUrl = (path: string) => `${API_CONFIG.baseURL}${path}`;
@@ -227,22 +261,13 @@ const ProductDetail = () => {
             </div>
           )}
 
-          <div className="flex gap-4">
-            <Button
-              variant="outline"
-              onClick={() => {}}
-              className="flex-1"
-            >
-              В корзину
-            </Button>
-            <Button
-              onClick={handleAddToCart}
-              disabled={!selectedGarment || selectedGarment.count === 0}
-              className="flex-1"
-            >
-              Купить
-            </Button>
-          </div>
+          <Button
+            onClick={handleAddToCart}
+            disabled={!selectedGarment || selectedGarment.count === 0}
+            className="w-full"
+          >
+            В корзину
+          </Button>
         </div>
       </div>
     </div>
