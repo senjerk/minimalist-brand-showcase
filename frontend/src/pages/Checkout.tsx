@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -25,7 +24,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// Сохраняем оригинальную схему для телефона и адреса
 const checkoutSchema = z.object({
   fullName: z.string().min(2, {
     message: "ФИО должно содержать минимум 2 символа",
@@ -70,26 +68,45 @@ const Checkout = () => {
   const [phoneValue, setPhoneValue] = useState("+7 (___) ___-__-__");
 
   const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, "");
-    if (value.length > 10) value = value.slice(0, 10);
+    let value = e.target.value;
     
-    let formattedValue = "+7 (___) ___-__-__";
-    let pos = 0;
-    
-    const result = formattedValue.split("").map(char => {
-      if (char === "_" && pos < value.length) {
-        return value[pos++];
+    if (value.length < phoneValue.length) {
+      value = phoneValue.replace(/\d(?=\D*$)/, '_');
+      setPhoneValue(value);
+      const digits = value.replace(/\D/g, "");
+      if (digits.length > 0) {
+        form.setValue("phone", "+7" + digits);
+      } else {
+        form.setValue("phone", "");
       }
-      return char;
-    }).join("");
+      return;
+    }
+
+    const digits = value.replace(/\D/g, "").slice(0, 10);
     
-    setPhoneValue(result);
-    // Преобразуем в формат для бэкенда (+7XXXXXXXXXX)
-    const backendFormat = "+7" + value;
-    form.setValue("phone", backendFormat);
+    if (digits.length === 0) {
+      setPhoneValue("+7 (___) ___-__-__");
+      form.setValue("phone", "");
+      return;
+    }
+
+    let formattedPhone = "+7 (";
+    for (let i = 0; i < 10; i++) {
+      if (i < digits.length) {
+        if (i === 3) formattedPhone += ") ";
+        if (i === 6 || i === 8) formattedPhone += "-";
+        formattedPhone += digits[i];
+      } else {
+        if (i === 3) formattedPhone += ") ";
+        if (i === 6 || i === 8) formattedPhone += "-";
+        formattedPhone += "_";
+      }
+    }
+
+    setPhoneValue(formattedPhone);
+    form.setValue("phone", "+7" + digits);
   };
 
-  // Функция для проверки статуса задачи (сохраняем оригинальную логику)
   const checkTaskStatus = async (taskId: string) => {
     try {
       const response = await fetch(
