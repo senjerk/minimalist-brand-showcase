@@ -1,69 +1,136 @@
-# Welcome to your Lovable project
+# Vlad's project
 
-## Project info
+## By "ВышивАрт"
 
-**URL**: https://lovable.dev/projects/af67b902-1415-422a-addd-f5c80d496271
+### Installation
 
-## How can I edit this code?
+1. Clone the repo
 
-There are several ways of editing your application.
+   ```bash
+   git clone https://github.com/DamirKFU/vlad.git
+   ```
 
-**Use Lovable**
+2. Go to working directory
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/af67b902-1415-422a-addd-f5c80d496271) and start prompting.
+    ```bash
+    cd vlad
+    ```
 
-Changes made via Lovable will be committed automatically to this repo.
+### backend
 
-**Use your preferred IDE**
+#### Prerequisites Python
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. Install Python:3.10
+    * download link
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+        ```url
+        https://www.python.org/downloads/release/python-3100/
+        ```
 
-Follow these steps:
+2. Go to working directory
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+    ```bash
+    cd backend
+    ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+3. Create virtual environment
+    * python
 
-# Step 3: Install the necessary dependencies.
-npm i
+        ```bash
+        python -m venv venv
+        ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+4. Activate virtual environment
+    * windows
+
+        ```bash
+        .\venv\Scripts\activate
+        ```
+
+    * linux
+
+        ```bash
+        source venv/bin/activate
+        ```
+
+5. Upgrade pip
+    * python
+
+        ```bash
+        python -m pip install --upgrade pip
+        ```
+
+#### Installation requirements
+
+1. Install requirements
+    * production
+
+        ```bash
+        pip install -r requirements/prod.txt
+        ```
+
+    * test
+
+        ```bash
+        pip install -r requirements/test.txt
+        ```
+
+2. Migrate Database
+    * python
+
+        ```bash
+        python manage.py makemigrations
+        python manage.py migrate
+        ```
+
+3. Load fixtures
+    * python
+
+        ```bash
+        python -Xutf8 manage.py loaddata fixtures/data.json
+        ```
+
+#### Static collection
+
+* python
+
+    ```bash
+    python manage.py collectstatic
+    ```
+
+#### Start
+
+* production
+
+    ```bash
+    python manage.py runserver
+    ```
+
+* test
+
+    ```bash
+    python manage.py test
+    ```
+
+### frontend
+
+#### Prerequisites Node.js
+
+1. Install Node.js:22.11.0
+    * download link
+
+        ```url
+        https://nodejs.org/en/download/prebuilt-installer
+        ```
+
+2. Go to working directory
+
+    ```bash
+    cd frontend
+    ```
+
+#### Start Node.js
+
+```bash
+npm start
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/af67b902-1415-422a-addd-f5c80d496271) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)

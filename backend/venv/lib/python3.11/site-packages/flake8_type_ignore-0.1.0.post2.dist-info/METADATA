@@ -1,0 +1,101 @@
+Metadata-Version: 2.1
+Name: flake8-type-ignore
+Version: 0.1.0.post2
+Summary: flake8-type-ignore allows you to disallow type: ignore comments in your typed Python code.
+Home-page: https://gitlab.com/jonafato/flake8-type-ignore/
+Author: Jon Banafato
+Author-email: pypi@jonafato.com
+License: BSD 3-Clause License
+Platform: UNKNOWN
+Classifier: Framework :: Flake8
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Software Development :: Quality Assurance
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: flake8 (>=3.0.0)
+
+# flake8-type-ignore
+
+`flake8-type-ignore` allows you to disallow `type: ignore` comments in your
+typed Python code.
+
+## Usage
+
+When installed into your Python environment running `flake8`, this plugin will
+raise errors according to the table below. For example, installing this plugin
+will raise `flake8` errors in the following code:
+
+```python
+# This line raises TI100
+x: str = 1  # type: ignore
+
+# This line raises both TI101 and TI139
+x.y = 2  # type:ignore[attr-defined,misc]
+
+def print_only_strings(arg: str):
+    print(arg)
+
+# This line raises TI104
+print_only_strings(123)
+```
+
+## Error codes
+
+| flake8-type-ignore error code | mypy error code                                      |
+| ----------------------------- | ---------------------------------------------------- |
+| `TI001`                       | Meta error code for invalid `type: ignore` comments. |
+| `TI002`                       | Meta error code for unknown mypy error codes.        |
+| `TI100`                       | Bare `type: ignore` comment                          |
+| `TI101`                       | `attr-defined`                                       |
+| `TI102`                       | `name-defined`                                       |
+| `TI103`                       | `call-arg`                                           |
+| `TI104`                       | `arg-type`                                           |
+| `TI105`                       | `call-overload`                                      |
+| `TI106`                       | `valid-type`                                         |
+| `TI107`                       | `var-annotated`                                      |
+| `TI108`                       | `override`                                           |
+| `TI109`                       | `return`                                             |
+| `TI110`                       | `return-value`                                       |
+| `TI111`                       | `assignment`                                         |
+| `TI112`                       | `type-arg`                                           |
+| `TI113`                       | `type-var`                                           |
+| `TI114`                       | `union-attr`                                         |
+| `TI115`                       | `index`                                              |
+| `TI116`                       | `operator`                                           |
+| `TI117`                       | `list-item`                                          |
+| `TI118`                       | `dict-item`                                          |
+| `TI119`                       | `typeddict-item`                                     |
+| `TI120`                       | `has-type`                                           |
+| `TI121`                       | `import`                                             |
+| `TI122`                       | `no-redef`                                           |
+| `TI123`                       | `func-returns-value`                                 |
+| `TI124`                       | `abstract`                                           |
+| `TI125`                       | `valid-newtype`                                      |
+| `TI126`                       | `str-format`                                         |
+| `TI127`                       | `str-bytes-safe`                                     |
+| `TI128`                       | `exit-return`                                        |
+| `TI129`                       | `no-untyped-def`                                     |
+| `TI130`                       | `no-untyped-call`                                    |
+| `TI131`                       | `redundant-cast`                                     |
+| `TI132`                       | `comparison-overlap`                                 |
+| `TI133`                       | `no-any-unimported`                                  |
+| `TI134`                       | `no-any-return`                                      |
+| `TI135`                       | `unreachable`                                        |
+| `TI136`                       | `redundant-expr`                                     |
+| `TI137`                       | `name-match`                                         |
+| `TI138`                       | `syntax`                                             |
+| `TI139`                       | `misc`                                               |
+
+## License
+
+flake8-type-ignore is available under the BSD 3-Clause license. See the `LICENSE` file for more details.
+
+

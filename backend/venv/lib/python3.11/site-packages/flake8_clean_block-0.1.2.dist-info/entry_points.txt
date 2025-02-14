@@ -1,0 +1,2 @@
+[flake8.extension]
+CLB = flake8_clean_block:Plugin
