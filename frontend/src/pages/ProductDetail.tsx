@@ -7,13 +7,6 @@ import { ProductDetailResponse, Garment } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -90,24 +83,13 @@ const ProductDetail = () => {
 
   const getFullImageUrl = (path: string) => `${API_CONFIG.baseURL}${path}`;
 
-  // Получаем уникальные категории, цвета и размеры
-  const uniqueCategories = Array.from(new Set(product.garments.map(g => g.category.name)));
-  const uniqueColors = Array.from(new Set(product.garments.map(g => g.color.name)));
+  // Получаем уникальные цвета и размеры
   const uniqueSizes = Array.from(new Set(product.garments.map(g => g.size)));
-
-  // Группируем гарменты по категориям для более удобного отображения
-  const garmentsByCategory = product.garments.reduce((acc, garment) => {
-    const categoryName = garment.category.name;
-    if (!acc[categoryName]) {
-      acc[categoryName] = [];
-    }
-    acc[categoryName].push(garment);
-    return acc;
-  }, {} as Record<string, Garment[]>);
+  const uniqueColors = Array.from(new Set(product.garments.map(g => g.color.name)));
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Изображения */}
         <div className="space-y-4">
           <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
@@ -145,69 +127,24 @@ const ProductDetail = () => {
         </div>
 
         {/* Информация о товаре */}
-        <div className="space-y-6">
-          <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-          
-          {/* Базовая цена товара */}
-          <div className="text-2xl font-semibold text-gray-900">
-            От {product.price.toLocaleString('ru-RU')} ₽
+        <div className="space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
+            <p className="text-lg text-gray-600">
+              Удобная футболка из 100% хлопка высшего качества. Подходит для
+              повседневной носки.
+            </p>
           </div>
 
-          {/* Выбор категории, размера и цвета */}
+          <div className="text-3xl font-bold">
+            {selectedGarment ? selectedGarment.price : product.price} ₽
+          </div>
+
           <div className="space-y-6">
-            {/* Категории */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-900">Категория</h3>
-              <div className="flex flex-wrap gap-2">
-                {uniqueCategories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => {
-                      const firstGarmentInCategory = garmentsByCategory[category][0];
-                      setSelectedGarment(firstGarmentInCategory);
-                    }}
-                    className={`px-4 py-2 rounded-full text-sm ${
-                      selectedGarment?.category.name === category
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Размеры */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-900">Размер</h3>
-              <div className="flex flex-wrap gap-2">
-                {uniqueSizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => {
-                      const garment = product.garments.find(
-                        g => g.size === size && 
-                        (selectedGarment ? g.category.name === selectedGarment.category.name : true)
-                      );
-                      if (garment) setSelectedGarment(garment);
-                    }}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium ${
-                      selectedGarment?.size === size
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Цвета */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h3 className="text-sm font-medium text-gray-900">Цвет</h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-3">
                 {uniqueColors.map((colorName) => {
                   const garment = product.garments.find(g => g.color.name === colorName);
                   const colorCode = garment?.color.color || '#000000';
@@ -215,16 +152,13 @@ const ProductDetail = () => {
                     <button
                       key={colorName}
                       onClick={() => {
-                        const garment = product.garments.find(
-                          g => g.color.name === colorName && 
-                          (selectedGarment ? g.category.name === selectedGarment.category.name : true)
-                        );
+                        const garment = product.garments.find(g => g.color.name === colorName);
                         if (garment) setSelectedGarment(garment);
                       }}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      className={`w-8 h-8 rounded-full border-2 ${
                         selectedGarment?.color.name === colorName
-                          ? 'ring-2 ring-offset-2 ring-gray-900'
-                          : ''
+                          ? 'border-purple-600 ring-2 ring-purple-200'
+                          : 'border-gray-300'
                       }`}
                       style={{ backgroundColor: colorCode }}
                       title={colorName}
@@ -234,26 +168,52 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {/* Информация о выбранном варианте */}
+            {/* Размеры */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-gray-900">Размер</h3>
+              <div className="flex gap-3">
+                {uniqueSizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => {
+                      const garment = product.garments.find(g => g.size === size);
+                      if (garment) setSelectedGarment(garment);
+                    }}
+                    className={`w-12 h-12 flex items-center justify-center rounded-lg border-2 ${
+                      selectedGarment?.size === size
+                        ? 'border-purple-600 bg-purple-50 text-purple-600'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {selectedGarment && (
-              <div className="p-4 bg-gray-50 rounded-lg space-y-2">
-                <p className="font-medium">Выбрано:</p>
-                <p>Категория: {selectedGarment.category.name}</p>
-                <p>Размер: {selectedGarment.size}</p>
-                <p>Цвет: {selectedGarment.color.name}</p>
-                <p>Цена: {selectedGarment.price.toLocaleString('ru-RU')} ₽</p>
-                <p>В наличии: {selectedGarment.count} шт.</p>
+              <div className="text-sm text-green-600">
+                В наличии: {selectedGarment.count} шт.
               </div>
             )}
-          </div>
 
-          <Button 
-            onClick={handleAddToCart}
-            disabled={!selectedGarment || selectedGarment.count === 0}
-            className="w-full"
-          >
-            {selectedGarment?.count === 0 ? "Нет в наличии" : "Добавить в корзину"}
-          </Button>
+            <div className="flex gap-4">
+              <Button 
+                variant="outline"
+                onClick={() => {}}
+                className="flex-1"
+              >
+                В корзину
+              </Button>
+              <Button 
+                onClick={handleAddToCart}
+                disabled={!selectedGarment || selectedGarment.count === 0}
+                className="flex-1 bg-purple-600 hover:bg-purple-700"
+              >
+                Купить
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
