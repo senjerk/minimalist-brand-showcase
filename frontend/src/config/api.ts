@@ -7,12 +7,10 @@ export const API_CONFIG = {
     categories: '/api/catalog/categories/',
     colors: '/api/catalog/colors/',
     productDetail: (id: number) => `/api/catalog/products/${id}/`,
-    orders: '/api/orders/',
-    auth: {
-      register: '/api/users/register/',
-      login: '/api/users/login/',
-      logout: '/api/users/logout/',
-      isAuth: '/api/users/is_auth/'
+    cart: {
+      add: '/api/catalog/cart/add/',
+      get: '/api/catalog/cart/',
+      update: (id: number) => `/api/catalog/cart/item/${id}/`,
     }
   }
 };

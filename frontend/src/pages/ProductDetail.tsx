@@ -99,14 +99,13 @@ const ProductDetail = () => {
     }
 
     try {
-      const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}`, {
+      const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.cart.add}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
         body: JSON.stringify({
-          product_id: product.id,
           garment_id: selectedGarment.id,
           quantity: 1,
         }),
