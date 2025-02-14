@@ -90,6 +90,21 @@ const ProductDetail = () => {
 
   const getFullImageUrl = (path: string) => `${API_CONFIG.baseURL}${path}`;
 
+  // Получаем уникальные категории, цвета и размеры
+  const uniqueCategories = Array.from(new Set(product.garments.map(g => g.category.name)));
+  const uniqueColors = Array.from(new Set(product.garments.map(g => g.color.name)));
+  const uniqueSizes = Array.from(new Set(product.garments.map(g => g.size)));
+
+  // Группируем гарменты по категориям для более удобного отображения
+  const garmentsByCategory = product.garments.reduce((acc, garment) => {
+    const categoryName = garment.category.name;
+    if (!acc[categoryName]) {
+      acc[categoryName] = [];
+    }
+    acc[categoryName].push(garment);
+    return acc;
+  }, {} as Record<string, Garment[]>);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -138,29 +153,88 @@ const ProductDetail = () => {
             От {product.price.toLocaleString('ru-RU')} ₽
           </div>
 
-          {/* Выбор размера и цвета */}
-          <div className="space-y-4">
-            <Select
-              value={selectedGarment?.id.toString()}
-              onValueChange={(value) => {
-                const garment = product.garments.find(g => g.id.toString() === value);
-                setSelectedGarment(garment || null);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Выберите размер и цвет" />
-              </SelectTrigger>
-              <SelectContent>
-                {product.garments.map((garment) => (
-                  <SelectItem key={garment.id} value={garment.id.toString()}>
-                    {garment.category.name} - {garment.size} - {garment.color.name} ({garment.price.toLocaleString('ru-RU')} ₽)
-                    {garment.count === 0 ? " (нет в наличии)" : ""}
-                  </SelectItem>
+          {/* Выбор категории, размера и цвета */}
+          <div className="space-y-6">
+            {/* Категории */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-900">Категория</h3>
+              <div className="flex flex-wrap gap-2">
+                {uniqueCategories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      const firstGarmentInCategory = garmentsByCategory[category][0];
+                      setSelectedGarment(firstGarmentInCategory);
+                    }}
+                    className={`px-4 py-2 rounded-full text-sm ${
+                      selectedGarment?.category.name === category
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                    }`}
+                  >
+                    {category}
+                  </button>
                 ))}
-              </SelectContent>
-            </Select>
+              </div>
+            </div>
 
-            {/* Отображение выбранной одежды */}
+            {/* Размеры */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-900">Размер</h3>
+              <div className="flex flex-wrap gap-2">
+                {uniqueSizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => {
+                      const garment = product.garments.find(
+                        g => g.size === size && 
+                        (selectedGarment ? g.category.name === selectedGarment.category.name : true)
+                      );
+                      if (garment) setSelectedGarment(garment);
+                    }}
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium ${
+                      selectedGarment?.size === size
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Цвета */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-900">Цвет</h3>
+              <div className="flex flex-wrap gap-2">
+                {uniqueColors.map((colorName) => {
+                  const garment = product.garments.find(g => g.color.name === colorName);
+                  const colorCode = garment?.color.color || '#000000';
+                  return (
+                    <button
+                      key={colorName}
+                      onClick={() => {
+                        const garment = product.garments.find(
+                          g => g.color.name === colorName && 
+                          (selectedGarment ? g.category.name === selectedGarment.category.name : true)
+                        );
+                        if (garment) setSelectedGarment(garment);
+                      }}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        selectedGarment?.color.name === colorName
+                          ? 'ring-2 ring-offset-2 ring-gray-900'
+                          : ''
+                      }`}
+                      style={{ backgroundColor: colorCode }}
+                      title={colorName}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Информация о выбранном варианте */}
             {selectedGarment && (
               <div className="p-4 bg-gray-50 rounded-lg space-y-2">
                 <p className="font-medium">Выбрано:</p>
