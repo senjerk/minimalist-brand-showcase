@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
@@ -36,6 +35,24 @@ const ProductDetail = () => {
   });
 
   const product = productData?.data;
+
+  useEffect(() => {
+    if (product && product.garments.length > 0) {
+      setSelectedGarment(product.garments[0]);
+    }
+  }, [product]);
+
+  const getStockStyle = (count: number) => {
+    if (count === 0) return "text-gray-500";
+    if (count <= 5) return "text-[#ea384c]";
+    if (count <= 10) return "text-[#FEC6A1]";
+    return "text-[#8E9196]";
+  };
+
+  const getStockText = (count: number) => {
+    if (count === 0) return "Нету в наличии";
+    return `В ��аличии: ${count} шт.`;
+  };
 
   if (isLoading) {
     return (
@@ -78,17 +95,14 @@ const ProductDetail = () => {
       toast.error("Пожалуйста, выберите размер и цвет");
       return;
     }
-    // Здесь будет логика добавления в корзину
     toast.success("Товар добавлен в корзину");
   };
 
   const getFullImageUrl = (path: string) => `${API_CONFIG.baseURL}${path}`;
 
-  // Получаем уникальные цвета и размеры
-  const uniqueColors = Array.from(new Set(product.garments.map(g => g.color.name)));
-  const uniqueSizes = Array.from(new Set(product.garments.map(g => g.size)));
+  const uniqueColors = Array.from(new Set(product?.garments.map(g => g.color.name) || []));
+  const uniqueSizes = Array.from(new Set(product?.garments.map(g => g.size) || []));
 
-  // Функция для определения, является ли цвет тёмным
   const isColorDark = (hexColor: string) => {
     const r = parseInt(hexColor.slice(1, 3), 16);
     const g = parseInt(hexColor.slice(3, 5), 16);
@@ -100,7 +114,6 @@ const ProductDetail = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Изображения */}
         <div className="space-y-4">
           <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
             <img
@@ -136,7 +149,6 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Информация о товаре */}
         <div className="flex flex-col space-y-6">
           <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
           <p className="text-lg text-gray-600">
@@ -148,7 +160,6 @@ const ProductDetail = () => {
             {selectedGarment ? selectedGarment.price : product.price} ₽
           </div>
 
-          {/* Цвета */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">Цвет</label>
             <div className="flex gap-4">
@@ -188,7 +199,6 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Размеры */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">Размер</label>
             <div className="flex gap-2">
@@ -211,15 +221,12 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Stock Status */}
           {selectedGarment && (
-            <div className="text-sm">
-              <span className="text-orange-500">В наличии:</span>{' '}
-              <span className="text-gray-900">{selectedGarment.count} шт.</span>
+            <div className={`text-sm ${getStockStyle(selectedGarment.count)}`}>
+              {getStockText(selectedGarment.count)}
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex gap-4">
             <Button
               variant="outline"
