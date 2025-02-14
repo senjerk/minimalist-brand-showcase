@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -101,9 +100,7 @@ const ProductDetail = () => {
     }
 
     try {
-      const headers = await addCSRFToken({
-        'Content-Type': 'application/json',
-      });
+      const headers = await addCSRFToken();
 
       const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.cart.add}`, {
         method: 'POST',

@@ -1,3 +1,4 @@
+
 const API_BASE_URL = 'http://localhost:8000';
 
 export async function getCSRFToken(): Promise<string | undefined> {
@@ -41,6 +42,6 @@ export async function addCSRFToken(headers: HeadersInit = {}): Promise<HeadersIn
     'X-CSRFToken': csrfToken || '',
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'Origin': 'http://localhost:5173', // Добавляем Origin заголовок
+    'Origin': 'http://localhost:5173', // Изменили порт на правильный для Vite
   };
 } 
