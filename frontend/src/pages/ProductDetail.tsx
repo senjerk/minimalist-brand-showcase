@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
+import { addCSRFToken } from "@/lib/csrf";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -99,11 +101,13 @@ const ProductDetail = () => {
     }
 
     try {
+      const headers = await addCSRFToken({
+        'Content-Type': 'application/json',
+      });
+
       const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.cart.add}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         credentials: 'include',
         body: JSON.stringify({
           garment_id: selectedGarment.id,
