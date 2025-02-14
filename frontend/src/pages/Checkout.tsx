@@ -44,6 +44,48 @@ const checkoutSchema = z.object({
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
+const formatPhoneNumber = (value: string): string => {
+  console.log('formatPhoneNumber input:', value);
+  
+  // Убираем все нецифровые символы и игнорируем первую 7
+  const numbers = value.replace(/\D/g, '').replace(/^7/, '');
+  console.log('numbers after replace and trim:', numbers);
+  
+  if (!numbers) {
+    return '+7';
+  }
+
+  const trimmed = numbers.slice(0, 10);
+  console.log('trimmed:', trimmed);
+  
+  const parts = {
+    areaCode: trimmed.slice(0, 3),
+    prefix: trimmed.slice(3, 6),
+    lineNumber1: trimmed.slice(6, 8),
+    lineNumber2: trimmed.slice(8, 10),
+  };
+  console.log('parts:', parts);
+
+  let formatted = '+7';
+  if (parts.areaCode) {
+    formatted += ` (${parts.areaCode}`;
+    if (parts.prefix) {
+      formatted += `) ${parts.prefix}`;
+      if (parts.lineNumber1) {
+        formatted += `-${parts.lineNumber1}`;
+        if (parts.lineNumber2) {
+          formatted += `-${parts.lineNumber2}`;
+        }
+      }
+    } else {
+      formatted += ')';
+    }
+  }
+  
+  console.log('final formatted:', formatted);
+  return formatted;
+};
+
 const Checkout = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -65,39 +107,33 @@ const Checkout = () => {
     },
   });
 
-  const [phoneValue, setPhoneValue] = useState("+7 (___) ___-__-__");
+  const [phoneValue, setPhoneValue] = useState('+7');
 
   const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-    const oldDigits = phoneValue.replace(/\D/g, "");
-    const newDigits = value.replace(/\D/g, "");
+    const input = e.target.value;
+    console.log('handlePhoneInput raw value:', input);
     
-    // Если пользователь удаляет символы
-    if (newDigits.length < oldDigits.length) {
-      // Удаляем последнюю цифру
-      const remainingDigits = oldDigits.slice(0, -1);
-      let formatted = "+7 (___) ___-__-__";
-      let pos = 0;
-      formatted = formatted.replace(/[_\d]/g, char => {
-        if (pos >= remainingDigits.length) return '_';
-        return remainingDigits[pos++];
-      });
-      setPhoneValue(formatted);
-      form.setValue("phone", remainingDigits.length > 0 ? "+7" + remainingDigits : "");
+    if (!input.startsWith('+7')) {
+      console.log('input doesnt start with +7, returning');
       return;
     }
 
-    // Обрабатываем добавление цифр
-    const digits = newDigits.slice(0, 10);
-    let formatted = "+7 (___) ___-__-__";
-    let pos = 0;
-    formatted = formatted.replace(/[_\d]/g, char => {
-      if (pos >= digits.length) return '_';
-      return digits[pos++];
-    });
-    
+    const formatted = formatPhoneNumber(input);
+    console.log('formatted result:', formatted);
     setPhoneValue(formatted);
-    form.setValue("phone", "+7" + digits);
+
+    // Убираем все нецифровые символы и игнорируем первую 7
+    const digits = input.replace(/\D/g, '').replace(/^7/, '');
+    console.log('digits for validation:', digits);
+    
+    if (digits.length >= 10) {
+      const phoneNumber = `+7${digits.slice(0, 10)}`;
+      console.log('setting form value:', phoneNumber);
+      form.setValue('phone', phoneNumber);
+    } else {
+      console.log('clearing form value');
+      form.setValue('phone', '');
+    }
   };
 
   const checkTaskStatus = async (taskId: string) => {
@@ -111,6 +147,7 @@ const Checkout = () => {
       
       const { message, data, errors } = await response.json();
 
+      // Проверяем ошибку о существующем заказе
       if (errors?.form_error === "У вас уже есть заказ в ожидании оплаты.") {
         toast.error(errors.form_error, {
           action: {
@@ -118,6 +155,22 @@ const Checkout = () => {
             onClick: () => navigate("/orders"),
           },
           duration: 10000,
+        });
+        return true;
+      }
+
+      // Проверяем ошибки валидации полей
+      if (errors?.fields) {
+        // Показываем все ошибки полей
+        Object.entries(errors.fields).forEach(([field, error]) => {
+          if (field === 'count') {
+            toast.error(`${error}`);
+          } else {
+            // Если появятся другие поля, можно добавить их обработку
+            form.setError(field as keyof CheckoutFormData, { 
+              message: error as string 
+            });
+          }
         });
         return true;
       }
@@ -132,6 +185,7 @@ const Checkout = () => {
         return true;
       }
 
+      // Обработка других ошибок
       if (data?.errors) {
         if (data.errors.form_error) {
           toast.error(data.errors.form_error);
@@ -182,6 +236,7 @@ const Checkout = () => {
     try {
       const headers = await addCSRFToken();
 
+      // Отправляем только телефон и адрес на бэкенд
       const response = await fetch(
         `${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}`,
         {
@@ -274,7 +329,31 @@ const Checkout = () => {
                         placeholder="+7 (___) ___-__-__"
                         value={phoneValue}
                         onChange={handlePhoneInput}
+                        onFocus={() => {
+                          if (phoneValue === '') {
+                            setPhoneValue('+7');
+                          }
+                        }}
+                        onBlur={() => {
+                          if (phoneValue === '+7') {
+                            setPhoneValue('');
+                          }
+                        }}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="example@mail.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
