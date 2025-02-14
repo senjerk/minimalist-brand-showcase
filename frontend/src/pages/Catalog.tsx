@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { useNavigate, Link } from "react-router-dom";
 
 const SIZES: Size[] = ["XS", "S", "M", "L", "XL", "XXL"];
 
@@ -57,6 +58,12 @@ const Catalog = () => {
 
   const products = data?.pages.flatMap(page => page.data.results) || [];
   const hasMore = data?.pages[data.pages.length - 1]?.data.next !== null;
+
+  const navigate = useNavigate();
+
+  const handleProductClick = (productId: number) => {
+    navigate(`/item/${productId}`);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -128,14 +135,19 @@ const Catalog = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {products.map((product) => (
-                <ProductCard 
+                <Link
                   key={product.id}
-                  product={{
-                    ...product,
-                    main_image: `${API_CONFIG.baseURL}${product.main_image}`,
-                    secondary_image: `${API_CONFIG.baseURL}${product.secondary_image}`
-                  }} 
-                />
+                  to={`/item/${product.id}`}
+                  className="cursor-pointer group"
+                >
+                  <ProductCard 
+                    product={{
+                      ...product,
+                      main_image: `${API_CONFIG.baseURL}${product.main_image}`,
+                      secondary_image: `${API_CONFIG.baseURL}${product.secondary_image}`
+                    }} 
+                  />
+                </Link>
               ))}
             </div>
             

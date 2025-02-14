@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
-import { ProductDetailResponse, Garment } from "@/types/api";
+import { ProductDetailResponse, Garment, CartResponse } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check } from "lucide-react";
@@ -14,7 +14,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const [selectedGarment, setSelectedGarment] = useState<Garment | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const { addItem } = useCart();
+  const { addItem, loadCart } = useCart();
 
   const { data: productData, isLoading } = useQuery<ProductDetailResponse>({
     queryKey: ['product', id],
@@ -44,6 +44,9 @@ const ProductDetail = () => {
       setSelectedGarment(product.garments[0]);
     }
   }, [product]);
+
+  // Убедимся, что функция getFullImageUrl доступна для использования в useEffect
+  const getFullImageUrl = (path: string) => `${API_CONFIG.baseURL}${path}`;
 
   const getStockStyle = (count: number) => {
     if (count === 0) return "text-gray-500";
@@ -107,12 +110,18 @@ const ProductDetail = () => {
         headers,
         credentials: 'include',
         body: JSON.stringify({
-          garment_id: selectedGarment.id,
+          id_product: product.id,
+          id_garment: selectedGarment.id,
           quantity: 1,
         }),
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.fields) {
+          const errors = Object.values(errorData.fields).join(', ');
+          throw new Error(errors);
+        }
         throw new Error('Failed to add to cart');
       }
 
@@ -128,11 +137,10 @@ const ProductDetail = () => {
 
       toast.success("Товар добавлен в корзину");
     } catch (error) {
-      toast.error("Не удалось добавить товар в корзину");
+      console.error('Error adding to cart:', error);
+      toast.error(error instanceof Error ? error.message : "Не удалось добавить товар в корзину");
     }
   };
-
-  const getFullImageUrl = (path: string) => `${API_CONFIG.baseURL}${path}`;
 
   const uniqueColors = Array.from(new Set(product?.garments.map(g => g.color.name) || []));
   const uniqueSizes = Array.from(new Set(product?.garments.map(g => g.size) || []));

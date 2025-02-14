@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+import { API_CONFIG } from '@/config/api';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -34,14 +36,27 @@ export async function getCSRFToken(): Promise<string | undefined> {
 }
 
 // Функция для добавления CSRF токена в заголовки запроса
-export async function addCSRFToken(headers: HeadersInit = {}): Promise<HeadersInit> {
-  const csrfToken = await getCSRFToken();
-  
+export async function addCSRFToken(): Promise<HeadersInit> {
+  let csrfToken = Cookies.get('csrftoken');
+
+  if (!csrfToken) {
+    // Если токена нет, делаем запрос для его получения
+    const response = await fetch(
+      `${API_CONFIG.baseURL}${API_CONFIG.endpoints.getCSRFToken}`,
+      {
+        credentials: 'include',
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch CSRF token');
+    }
+    
+    csrfToken = Cookies.get('csrftoken');
+  }
+
   return {
-    ...headers,
-    'X-CSRFToken': csrfToken || '',
-    'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'Origin': 'http://localhost:5173', // Изменили порт на правильный для Vite
+    'X-CSRFToken': csrfToken || '',
   };
 } 

@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +20,8 @@ import StaffHome from "./pages/staff/StaffHome";
 import StaffOrders from "./pages/staff/StaffOrders";
 import StaffOrderDetail from "./pages/staff/StaffOrderDetail";
 import StaffChats from "./pages/staff/StaffChats";
+import Chats from "./pages/Chats";
+import ChatDetail from "./pages/ChatDetail";
 
 const queryClient = new QueryClient();
 
@@ -40,9 +41,12 @@ function App() {
                   <Route path="/about" element={<About />} />
                   <Route path="/catalog" element={<Catalog />} />
                   <Route path="/orders" element={<OrderStatus />} />
+                  <Route path="/orders/:id" element={<OrderStatus />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/item/:id" element={<ProductDetail />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/support" element={<Chats />} />
+                  <Route path="/support/:id" element={<ChatDetail />} />
                 </Route>
                 <Route element={
                   <ProtectedRoute>
