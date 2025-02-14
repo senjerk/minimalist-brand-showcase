@@ -9,13 +9,50 @@ export interface ProductResponse {
   message?: string;
 }
 
+export interface ProductDetailResponse {
+  data: ProductDetail;
+  message: string;
+}
+
 export interface Product {
   id: number;
   name: string;
-  image: string;
   main_image: string;
   secondary_image: string;
   price: number;
+}
+
+export interface ProductDetail extends Product {
+  garments: Garment[];
+  additional_images: AdditionalImage[];
+}
+
+export interface Garment {
+  id: number;
+  category: {
+    id: number;
+    name: string;
+  };
+  color: {
+    id: number;
+    name: string;
+    color: string;
+  };
+  size: string;
+  count: number;
+  price: number;
+}
+
+export interface AdditionalImage {
+  image: string;
+  category: {
+    id: number;
+    name: string;
+  };
+  color: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface Category {
@@ -35,26 +72,4 @@ export interface CategoriesResponse {
 
 export interface ColorsResponse {
   data: Color[];
-}
-
-export type Size = "XS" | "S" | "M" | "L" | "XL" | "XXL";
-
-export interface APIResponse<T> {
-  data: T;
-  message: string;
-  queries_info?: {
-    count: number;
-    total_time: number;
-    queries: Array<{
-      sql: string;
-      time: string;
-    }>;
-  };
-}
-
-export interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
 }
