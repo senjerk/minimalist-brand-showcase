@@ -6,6 +6,7 @@ import { API_CONFIG } from "@/config/api";
 import { ProductDetailResponse, Garment } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 const ProductDetail = () => {
@@ -136,7 +137,7 @@ const ProductDetail = () => {
             </p>
           </div>
 
-          <div className="text-3xl font-bold">
+          <div className="text-2xl font-bold">
             {selectedGarment ? selectedGarment.price : product.price} ₽
           </div>
 
@@ -148,6 +149,7 @@ const ProductDetail = () => {
                 {uniqueColors.map((colorName) => {
                   const garment = product.garments.find(g => g.color.name === colorName);
                   const colorCode = garment?.color.color || '#000000';
+                  const isSelected = selectedGarment?.color.name === colorName;
                   return (
                     <button
                       key={colorName}
@@ -155,16 +157,26 @@ const ProductDetail = () => {
                         const garment = product.garments.find(g => g.color.name === colorName);
                         if (garment) setSelectedGarment(garment);
                       }}
-                      className={`w-8 h-8 rounded-full border-2 ${
-                        selectedGarment?.color.name === colorName
-                          ? 'border-purple-600 ring-2 ring-purple-200'
-                          : 'border-gray-300'
-                      }`}
-                      style={{ backgroundColor: colorCode }}
-                      title={colorName}
-                    />
+                      className="relative w-8 h-8 rounded-full flex items-center justify-center"
+                    >
+                      <div 
+                        className={`absolute inset-0 rounded-full border ${
+                          isSelected ? 'border-2 border-gray-900' : 'border border-gray-200'
+                        }`}
+                        style={{ backgroundColor: colorCode }}
+                      />
+                      {isSelected ? (
+                        <Check className="w-5 h-5 text-white z-10" />
+                      ) : (
+                        <X className="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 z-10" />
+                      )}
+                      <span className="sr-only">{colorName}</span>
+                    </button>
                   );
                 })}
+              </div>
+              <div className="text-sm text-gray-500">
+                {selectedGarment?.color.name || 'Выберите цвет'}
               </div>
             </div>
 
@@ -179,10 +191,10 @@ const ProductDetail = () => {
                       const garment = product.garments.find(g => g.size === size);
                       if (garment) setSelectedGarment(garment);
                     }}
-                    className={`w-12 h-12 flex items-center justify-center rounded-lg border-2 ${
+                    className={`w-10 h-10 flex items-center justify-center text-sm font-medium rounded border ${
                       selectedGarment?.size === size
-                        ? 'border-purple-600 bg-purple-50 text-purple-600'
-                        : 'border-gray-300 hover:border-gray-400'
+                        ? 'bg-gray-900 text-white border-gray-900'
+                        : 'bg-white text-gray-900 border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     {size}
@@ -192,8 +204,9 @@ const ProductDetail = () => {
             </div>
 
             {selectedGarment && (
-              <div className="text-sm text-green-600">
-                В наличии: {selectedGarment.count} шт.
+              <div className="text-sm">
+                <span className="text-orange-500">В наличии:</span>{' '}
+                <span className="text-gray-900">{selectedGarment.count} шт.</span>
               </div>
             )}
 
@@ -201,14 +214,14 @@ const ProductDetail = () => {
               <Button 
                 variant="outline"
                 onClick={() => {}}
-                className="flex-1"
+                className="flex-1 border-gray-900 hover:bg-gray-900 hover:text-white transition-colors"
               >
                 В корзину
               </Button>
               <Button 
                 onClick={handleAddToCart}
                 disabled={!selectedGarment || selectedGarment.count === 0}
-                className="flex-1 bg-purple-600 hover:bg-purple-700"
+                className="flex-1 bg-gray-900 hover:bg-gray-800"
               >
                 Купить
               </Button>
