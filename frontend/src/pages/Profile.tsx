@@ -135,9 +135,31 @@ const Profile = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Информация о пользователе */}
-      <div className="mb-8 p-6 bg-muted rounded-lg">
+    <div className="container mx-auto p-4">
+      {/* Мобильный заголовок */}
+      <div className="flex flex-col gap-4 mb-6 md:hidden">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-full">
+            <User className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-lg font-medium truncate">{user?.email || 'Пользователь'}</h2>
+            <p className="text-sm text-muted-foreground">ID: {user?.id || 'N/A'}</p>
+          </div>
+        </div>
+        <Button 
+          variant="destructive" 
+          onClick={handleLogout}
+          size="sm"
+          className="w-full flex items-center justify-center gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Выйти из аккаунта
+        </Button>
+      </div>
+
+      {/* Десктопный заголовок */}
+      <div className="hidden md:block mb-8 p-6 bg-muted rounded-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary/10 rounded-full">
@@ -159,59 +181,43 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Карточки навигации */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
+      {/* Навигационные карточки */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <Card 
           className={`cursor-pointer transition-all hover:shadow-lg ${activeSection === 'orders' ? 'border-primary' : ''}`}
           onClick={() => setActiveSection('orders')}
         >
-          <CardHeader>
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center mb-4">
-              <List className="w-6 h-6 text-white" />
+          <CardHeader className="pb-4">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center mb-3">
+              <List className="w-5 h-5 text-white" />
             </div>
-            <CardTitle>История заказов</CardTitle>
-            <CardDescription>
-              Просмотр и отслеживание ваших заказов
+            <CardTitle className="text-lg">История заказов</CardTitle>
+            <CardDescription className="text-sm">
+              Просмотр и отслеживание заказов
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button 
-              className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90"
-            >
-              Открыть
-              <List className="w-4 h-4 ml-2" />
-            </Button>
-          </CardContent>
         </Card>
 
         <Card 
           className={`cursor-pointer transition-all hover:shadow-lg ${activeSection === 'settings' ? 'border-primary' : ''}`}
           onClick={() => setActiveSection('settings')}
         >
-          <CardHeader>
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-4">
-              <Settings className="w-6 h-6 text-white" />
+          <CardHeader className="pb-4">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-3">
+              <Settings className="w-5 h-5 text-white" />
             </div>
-            <CardTitle>Настройки профиля</CardTitle>
-            <CardDescription>
-              Управление настройками вашего аккаунта
+            <CardTitle className="text-lg">Настройки профиля</CardTitle>
+            <CardDescription className="text-sm">
+              Управление настройками
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button 
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
-            >
-              Открыть
-              <Settings className="w-4 h-4 ml-2" />
-            </Button>
-          </CardContent>
         </Card>
       </div>
 
-      {/* Контент секции */}
+      {/* Контент секций */}
       {activeSection === 'orders' && (
         <div>
-          <h2 className="text-2xl font-bold mb-6">История заказов</h2>
+          <h2 className="text-xl font-bold mb-4">История заказов</h2>
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -221,7 +227,7 @@ const Profile = () => {
               У вас пока нет заказов
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {ordersData?.data.results.map((order) => (
                 <OrderCard key={order.id} order={order} />
               ))}
@@ -232,8 +238,8 @@ const Profile = () => {
 
       {activeSection === 'settings' && (
         <div>
-          <h2 className="text-2xl font-bold mb-6">Настройки профиля</h2>
-          <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-bold mb-4">Настройки профиля</h2>
+          <div className="bg-white rounded-lg shadow p-4">
             <p className="text-gray-500">
               Дополнительные настройки профиля появятся в ближайшее время
             </p>
