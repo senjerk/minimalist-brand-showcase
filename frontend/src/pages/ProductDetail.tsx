@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -87,6 +88,8 @@ const ProductDetail = () => {
     toast.success("Товар добавлен в корзину");
   };
 
+  const getFullImageUrl = (path: string) => `${API_CONFIG.baseURL}${path}`;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -94,7 +97,7 @@ const ProductDetail = () => {
         <div className="space-y-4">
           <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
             <img
-              src={selectedImage || product.main_image}
+              src={getFullImageUrl(selectedImage || product.main_image)}
               alt={product.name}
               className="h-full w-full object-cover object-center"
             />
@@ -105,7 +108,7 @@ const ProductDetail = () => {
               className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100"
             >
               <img
-                src={product.main_image}
+                src={getFullImageUrl(product.main_image)}
                 alt={product.name}
                 className="h-full w-full object-cover object-center"
               />
@@ -117,7 +120,7 @@ const ProductDetail = () => {
                 className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100"
               >
                 <img
-                  src={img.image}
+                  src={getFullImageUrl(img.image)}
                   alt={`${product.name} - ${img.color.name}`}
                   className="h-full w-full object-cover object-center"
                 />
@@ -129,9 +132,11 @@ const ProductDetail = () => {
         {/* Информация о товаре */}
         <div className="space-y-6">
           <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-          <p className="text-2xl font-semibold text-gray-900">
-            {product.price.toLocaleString('ru-RU')} ₽
-          </p>
+          
+          {/* Базовая цена товара */}
+          <div className="text-2xl font-semibold text-gray-900">
+            От {product.price.toLocaleString('ru-RU')} ₽
+          </div>
 
           {/* Выбор размера и цвета */}
           <div className="space-y-4">
@@ -148,12 +153,24 @@ const ProductDetail = () => {
               <SelectContent>
                 {product.garments.map((garment) => (
                   <SelectItem key={garment.id} value={garment.id.toString()}>
-                    {garment.size} - {garment.color.name} 
+                    {garment.category.name} - {garment.size} - {garment.color.name} ({garment.price.toLocaleString('ru-RU')} ₽)
                     {garment.count === 0 ? " (нет в наличии)" : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Отображение выбранной одежды */}
+            {selectedGarment && (
+              <div className="p-4 bg-gray-50 rounded-lg space-y-2">
+                <p className="font-medium">Выбрано:</p>
+                <p>Категория: {selectedGarment.category.name}</p>
+                <p>Размер: {selectedGarment.size}</p>
+                <p>Цвет: {selectedGarment.color.name}</p>
+                <p>Цена: {selectedGarment.price.toLocaleString('ru-RU')} ₽</p>
+                <p>В наличии: {selectedGarment.count} шт.</p>
+              </div>
+            )}
           </div>
 
           <Button 
