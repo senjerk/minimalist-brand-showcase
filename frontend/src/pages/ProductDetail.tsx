@@ -85,12 +85,21 @@ const ProductDetail = () => {
   const getFullImageUrl = (path: string) => `${API_CONFIG.baseURL}${path}`;
 
   // Получаем уникальные цвета и размеры
-  const uniqueSizes = Array.from(new Set(product.garments.map(g => g.size)));
   const uniqueColors = Array.from(new Set(product.garments.map(g => g.color.name)));
+  const uniqueSizes = Array.from(new Set(product.garments.map(g => g.size)));
+
+  // Функция для определения, является ли цвет тёмным
+  const isColorDark = (hexColor: string) => {
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 128;
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Изображения */}
         <div className="space-y-4">
           <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
@@ -128,104 +137,104 @@ const ProductDetail = () => {
         </div>
 
         {/* Информация о товаре */}
-        <div className="space-y-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
-            <p className="text-lg text-gray-600">
-              Удобная футболка из 100% хлопка высшего качества. Подходит для
-              повседневной носки.
-            </p>
-          </div>
-
-          <div className="text-2xl font-bold">
+        <div className="flex flex-col space-y-6">
+          <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+          <p className="text-lg text-gray-600">
+            Удобная футболка из 100% хлопка высшего качества. Подходит для
+            повседневной носки.
+          </p>
+          
+          <div className="text-2xl font-bold text-gray-900">
             {selectedGarment ? selectedGarment.price : product.price} ₽
           </div>
 
-          <div className="space-y-6">
-            {/* Цвета */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-gray-900">Цвет</h3>
-              <div className="flex gap-3">
-                {uniqueColors.map((colorName) => {
-                  const garment = product.garments.find(g => g.color.name === colorName);
-                  const colorCode = garment?.color.color || '#000000';
-                  const isSelected = selectedGarment?.color.name === colorName;
-                  return (
+          {/* Цвета */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Цвет</label>
+            <div className="flex gap-4">
+              {uniqueColors.map((colorName) => {
+                const garment = product.garments.find(g => g.color.name === colorName);
+                const colorCode = garment?.color.color || '#000000';
+                return (
+                  <div key={colorName} className="relative">
                     <button
-                      key={colorName}
                       onClick={() => {
                         const garment = product.garments.find(g => g.color.name === colorName);
                         if (garment) setSelectedGarment(garment);
                       }}
-                      className="relative w-8 h-8 rounded-full flex items-center justify-center"
+                      className={`w-12 h-12 rounded-full border-2 relative ${
+                        selectedGarment?.color.name === colorName
+                          ? "ring-2 ring-offset-2 ring-primary"
+                          : ""
+                      } hover:ring-2 hover:ring-offset-2 hover:ring-gray-300`}
+                      style={{ backgroundColor: colorCode }}
                     >
-                      <div 
-                        className={`absolute inset-0 rounded-full border ${
-                          isSelected ? 'border-2 border-gray-900' : 'border border-gray-200'
-                        }`}
-                        style={{ backgroundColor: colorCode }}
-                      />
-                      {isSelected ? (
-                        <Check className="w-5 h-5 text-white z-10" />
-                      ) : (
-                        <X className="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 z-10" />
+                      {selectedGarment?.color.name === colorName && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Check 
+                            className={`h-6 w-6 ${
+                              isColorDark(colorCode) ? "text-white" : "text-black"
+                            }`} 
+                          />
+                        </div>
                       )}
-                      <span className="sr-only">{colorName}</span>
                     </button>
-                  );
-                })}
-              </div>
-              <div className="text-sm text-gray-500">
-                {selectedGarment?.color.name || 'Выберите цвет'}
-              </div>
+                    <span className="block text-xs text-center mt-1 text-gray-600">
+                      {colorName}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
+          </div>
 
-            {/* Размеры */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-gray-900">Размер</h3>
-              <div className="flex gap-3">
-                {uniqueSizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => {
-                      const garment = product.garments.find(g => g.size === size);
-                      if (garment) setSelectedGarment(garment);
-                    }}
-                    className={`w-10 h-10 flex items-center justify-center text-sm font-medium rounded border ${
-                      selectedGarment?.size === size
-                        ? 'bg-gray-900 text-white border-gray-900'
-                        : 'bg-white text-gray-900 border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
+          {/* Размеры */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Размер</label>
+            <div className="flex gap-2">
+              {uniqueSizes.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => {
+                    const garment = product.garments.find(g => g.size === size);
+                    if (garment) setSelectedGarment(garment);
+                  }}
+                  className={`px-4 py-2 border rounded-md ${
+                    selectedGarment?.size === size
+                      ? "bg-gray-900 text-white"
+                      : "bg-white text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
             </div>
+          </div>
 
-            {selectedGarment && (
-              <div className="text-sm">
-                <span className="text-orange-500">В наличии:</span>{' '}
-                <span className="text-gray-900">{selectedGarment.count} шт.</span>
-              </div>
-            )}
-
-            <div className="flex gap-4">
-              <Button 
-                variant="outline"
-                onClick={() => {}}
-                className="flex-1 border-gray-900 hover:bg-gray-900 hover:text-white transition-colors"
-              >
-                В корзину
-              </Button>
-              <Button 
-                onClick={handleAddToCart}
-                disabled={!selectedGarment || selectedGarment.count === 0}
-                className="flex-1 bg-gray-900 hover:bg-gray-800"
-              >
-                Купить
-              </Button>
+          {/* Stock Status */}
+          {selectedGarment && (
+            <div className="text-sm">
+              <span className="text-orange-500">В наличии:</span>{' '}
+              <span className="text-gray-900">{selectedGarment.count} шт.</span>
             </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              onClick={() => {}}
+              className="flex-1"
+            >
+              В корзину
+            </Button>
+            <Button
+              onClick={handleAddToCart}
+              disabled={!selectedGarment || selectedGarment.count === 0}
+              className="flex-1"
+            >
+              Купить
+            </Button>
           </div>
         </div>
       </div>
