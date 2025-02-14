@@ -69,41 +69,34 @@ const Checkout = () => {
 
   const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
+    const oldDigits = phoneValue.replace(/\D/g, "");
+    const newDigits = value.replace(/\D/g, "");
     
-    if (value.length < phoneValue.length) {
-      value = phoneValue.replace(/\d(?=\D*$)/, '_');
-      setPhoneValue(value);
-      const digits = value.replace(/\D/g, "");
-      if (digits.length > 0) {
-        form.setValue("phone", "+7" + digits);
-      } else {
-        form.setValue("phone", "");
-      }
+    // Если пользователь удаляет символы
+    if (newDigits.length < oldDigits.length) {
+      // Удаляем последнюю цифру
+      const remainingDigits = oldDigits.slice(0, -1);
+      let formatted = "+7 (___) ___-__-__";
+      let pos = 0;
+      formatted = formatted.replace(/[_\d]/g, char => {
+        if (pos >= remainingDigits.length) return '_';
+        return remainingDigits[pos++];
+      });
+      setPhoneValue(formatted);
+      form.setValue("phone", remainingDigits.length > 0 ? "+7" + remainingDigits : "");
       return;
     }
 
-    const digits = value.replace(/\D/g, "").slice(0, 10);
+    // Обрабатываем добавление цифр
+    const digits = newDigits.slice(0, 10);
+    let formatted = "+7 (___) ___-__-__";
+    let pos = 0;
+    formatted = formatted.replace(/[_\d]/g, char => {
+      if (pos >= digits.length) return '_';
+      return digits[pos++];
+    });
     
-    if (digits.length === 0) {
-      setPhoneValue("+7 (___) ___-__-__");
-      form.setValue("phone", "");
-      return;
-    }
-
-    let formattedPhone = "+7 (";
-    for (let i = 0; i < 10; i++) {
-      if (i < digits.length) {
-        if (i === 3) formattedPhone += ") ";
-        if (i === 6 || i === 8) formattedPhone += "-";
-        formattedPhone += digits[i];
-      } else {
-        if (i === 3) formattedPhone += ") ";
-        if (i === 6 || i === 8) formattedPhone += "-";
-        formattedPhone += "_";
-      }
-    }
-
-    setPhoneValue(formattedPhone);
+    setPhoneValue(formatted);
     form.setValue("phone", "+7" + digits);
   };
 
@@ -283,28 +276,6 @@ const Checkout = () => {
                         onChange={handlePhoneInput}
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email*</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="email" 
-                        placeholder="example@mail.com" 
-                        {...field}
-                        disabled={isAuthenticated}
-                      />
-                    </FormControl>
-                    <p className="text-sm text-muted-foreground">
-                      Будет использоваться как логин для просмотра статуса заказа
-                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
