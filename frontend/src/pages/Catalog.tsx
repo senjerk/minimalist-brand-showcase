@@ -66,7 +66,7 @@ const Catalog = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="container mx-auto px-4 py-8">
       <div className="space-y-12">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
@@ -127,47 +127,47 @@ const Catalog = () => {
           </Select>
         </div>
 
-        {isLoading ? (
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-              {products.map((product) => (
-                <Link
-                  key={product.id}
-                  to={`/item/${product.id}`}
-                  className="cursor-pointer group"
-                >
-                  <ProductCard 
-                    product={{
-                      ...product,
-                      main_image: `${API_CONFIG.baseURL}${product.main_image}`,
-                      secondary_image: `${API_CONFIG.baseURL}${product.secondary_image}`
-                    }} 
-                  />
-                </Link>
-              ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {isLoading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
             </div>
-            
-            {hasMore && (
-              <div className="flex justify-center mt-8">
-                <Button
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                  variant="outline"
-                  size="lg"
-                >
-                  {isFetchingNextPage ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                  ) : (
-                    "Загрузить еще"
-                  )}
-                </Button>
+          ) : products.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-lg text-gray-500">
+                Упс.. Похоже таких товаров у нас ещё нет.
+              </p>
+            </div>
+          ) : (
+            products.map((product) => (
+              <div 
+                key={product.id} 
+                onClick={() => handleProductClick(product.id)}
+                className="cursor-pointer"
+              >
+                <ProductCard product={product} />
               </div>
-            )}
-          </>
+            ))
+          )}
+        </div>
+
+        {hasMore && (
+          <div className="flex justify-center mt-8">
+            <Button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              variant="outline"
+              size="lg"
+            >
+              {isFetchingNextPage ? (
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                </div>
+              ) : (
+                "Загрузить еще"
+              )}
+            </Button>
+          </div>
         )}
       </div>
     </div>

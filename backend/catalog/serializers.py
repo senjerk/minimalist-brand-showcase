@@ -348,7 +348,7 @@ class CreateOrderSerializer(rest_framework.serializers.Serializer):
         yookassa_service = payments.services.YooKassaService()
         payment_data = yookassa_service.create_payment(
             order=order,
-            return_url=f"http://localhost:3000/orders/{order.id}",
+            return_url=f"http://localhost:8080/orders/{order.id}?success=true",
         )
 
         order.payment_id = payment_data["id"]

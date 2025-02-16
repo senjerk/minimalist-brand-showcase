@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import CartButton from "@/components/CartButton";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import {
@@ -20,7 +19,6 @@ const Navbar = () => {
     { title: "Главная", path: "/" },
     { title: "Каталог", path: "/catalog" },
     { title: "Конструктор", path: "/constructor" },
-    { title: "Статусы", path: "/orders" },
     { title: "О нас", path: "/about" }
   ];
 
@@ -51,7 +49,6 @@ const Navbar = () => {
             <div className="flex items-center gap-4">
               <CartButton />
               <AuthDialog />
-              <ThemeToggle />
             </div>
           </div>
 
@@ -59,7 +56,6 @@ const Navbar = () => {
           <div className="sm:hidden flex items-center gap-2">
             <CartButton />
             <AuthDialog />
-            <ThemeToggle />
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">

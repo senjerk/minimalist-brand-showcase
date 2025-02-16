@@ -1,8 +1,7 @@
-
 import { motion } from "framer-motion";
 import { Product } from "@/types/api";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { API_CONFIG } from "@/config/api";
 
 interface ProductCardProps {
   product: Product;
@@ -10,7 +9,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  const navigate = useNavigate();
 
   return (
     <motion.div
@@ -20,18 +18,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
       className="group relative overflow-hidden rounded-lg bg-white p-4 shadow-sm transition-shadow hover:shadow-md h-full flex flex-col cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => navigate(`/catalog/${product.id}`)}
     >
       <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 relative">
         <img
-          src={product.main_image}
+          src={`${API_CONFIG.baseURL}${product.main_image}`}
           alt={product.name}
           className={`absolute h-full w-full object-cover object-center transition-opacity duration-300 ${
             isHovered ? 'opacity-0' : 'opacity-100'
           }`}
         />
         <img
-          src={product.secondary_image}
+          src={`${API_CONFIG.baseURL}${product.secondary_image}`}
           alt={`${product.name} - второе фото`}
           className={`absolute h-full w-full object-cover object-center transition-opacity duration-300 ${
             isHovered ? 'opacity-100' : 'opacity-0'

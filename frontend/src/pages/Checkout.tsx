@@ -152,7 +152,7 @@ const Checkout = () => {
         toast.error(errors.form_error, {
           action: {
             label: "Перейти к заказу",
-            onClick: () => navigate("/orders"),
+            onClick: () => navigate("/profile"),
           },
           duration: 10000,
         });
