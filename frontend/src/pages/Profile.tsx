@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
 import { OrdersResponse, Order } from "@/types/api";
-import { Loader2, LogOut, User, List, Settings, Shield } from "lucide-react";
+import { Loader2, LogOut, User, List, Settings, Shield, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -55,6 +55,10 @@ const Profile = () => {
 
   const handleStaffClick = () => {
     navigate('/staff');
+  };
+
+  const handleSupportClick = () => {
+    navigate('/support');
   };
 
   const OrderCard = ({ order }: { order: Order }) => {
@@ -208,6 +212,21 @@ const Profile = () => {
             <CardTitle className="text-lg">Настройки профиля</CardTitle>
             <CardDescription className="text-sm">
               Управление настройками
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Card 
+          className="cursor-pointer transition-all hover:shadow-lg"
+          onClick={handleSupportClick}
+        >
+          <CardHeader className="pb-4">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center mb-3">
+              <MessageCircle className="w-5 h-5 text-white" />
+            </div>
+            <CardTitle className="text-lg">Поддержка</CardTitle>
+            <CardDescription className="text-sm">
+              Чат с поддержкой
             </CardDescription>
           </CardHeader>
         </Card>

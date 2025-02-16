@@ -16,21 +16,8 @@ export const AuthDialog = () => {
     navigate("/login");
   };
 
-  const handleSupportClick = () => {
-    navigate("/support");
-  };
-
   return (
     <div className="flex items-center gap-2">
-      {isAuthenticated && (
-        <Button 
-          variant="outline" 
-          onClick={handleSupportClick}
-          className="relative"
-        >
-          Поддержка
-        </Button>
-      )}
       <Button 
         variant="outline" 
         size="icon" 
