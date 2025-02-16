@@ -46,7 +46,7 @@ const ChatMessage = ({ message, currentUserId }: { message: Message; currentUser
       isOwn ? "flex-row-reverse" : "flex-row"
     )}>
       {!isOwn && (
-        <Avatar className="w-8 h-8">
+        <Avatar className="w-8 h-8 flex-shrink-0">
           <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${message.username}`} />
           <AvatarFallback>{message.username[0]}</AvatarFallback>
         </Avatar>
@@ -146,8 +146,8 @@ const ChatDetail = ({ id }: ChatDetailProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="border-b pb-4 mb-4">
+    <div className="flex flex-col h-full max-h-[calc(100vh-8rem)]">
+      <div className="border-b pb-4 mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold truncate">
             Чат #{id}
@@ -155,18 +155,20 @@ const ChatDetail = ({ id }: ChatDetailProps) => {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 pr-4">
-        {messages.map((message) => (
-          <ChatMessage 
-            key={message.id} 
-            message={message} 
-            currentUserId={userData?.user_id || 0}
-          />
-        ))}
-        <div ref={messagesEndRef} />
+      <ScrollArea className="flex-1 pr-4 min-h-0">
+        <div className="space-y-4">
+          {messages.map((message) => (
+            <ChatMessage 
+              key={message.id} 
+              message={message} 
+              currentUserId={userData?.user_id || 0}
+            />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
       </ScrollArea>
 
-      <form onSubmit={sendMessage} className="mt-4 flex gap-2">
+      <form onSubmit={sendMessage} className="mt-4 flex gap-2 flex-shrink-0 pt-4 border-t">
         <Input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
