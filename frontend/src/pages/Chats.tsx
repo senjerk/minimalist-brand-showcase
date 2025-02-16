@@ -20,6 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { addCSRFToken } from "@/lib/csrf";
+import ChatDetail from "./ChatDetail";
 
 interface Chat {
   id: number;
@@ -108,7 +109,6 @@ const Chats = () => {
   const [selectedChatId, setSelectedChatId] = useState<string>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newChatTopic, setNewChatTopic] = useState("");
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   const { data: chatsData, isLoading } = useQuery<ChatsResponse>({
@@ -155,7 +155,7 @@ const Chats = () => {
       const data = await response.json();
       setIsDialogOpen(false);
       setNewChatTopic("");
-      navigate(`/support/${data.data.id}`);
+      setSelectedChatId(data.data.id.toString());
     } catch (error) {
       console.error("Error creating chat:", error);
       toast.error("Не удалось создать чат");
@@ -164,7 +164,6 @@ const Chats = () => {
 
   const handleChatSelect = (chatId: string) => {
     setSelectedChatId(chatId);
-    navigate(`/support/${chatId}`);
   };
 
   return (
@@ -225,9 +224,13 @@ const Chats = () => {
           />
         </div>
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            Выберите чат для начала общения
-          </div>
+          {selectedChatId ? (
+            <ChatDetail id={selectedChatId} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              Выберите чат для начала общения
+            </div>
+          )}
         </div>
       </div>
     </div>
