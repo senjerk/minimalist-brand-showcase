@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -64,42 +63,40 @@ const ChatList = ({
   return (
     <ScrollArea className="h-[calc(100vh-16rem)]">
       {chats.map((chat) => (
-        <Card 
+        <div
           key={chat.id}
+          onClick={() => onChatSelect(chat.id.toString())}
           className={cn(
-            "p-4 mb-2 cursor-pointer hover:bg-accent transition-colors",
+            "bg-card mb-2 rounded-lg p-4 cursor-pointer hover:bg-accent transition-colors",
             selectedChatId === chat.id.toString() && "bg-accent"
           )}
-          onClick={() => onChatSelect(chat.id.toString())}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <div className="flex justify-between items-center mb-1">
-                <h3 className="font-semibold truncate">#{chat.id} {chat.topic}</h3>
+          <div className="flex flex-col">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="font-medium">#{chat.id} {chat.topic}</h3>
+              <div className="flex items-center gap-2 ml-2">
+                <Circle
+                  className={`h-2 w-2 ${
+                    chat.is_active ? "text-green-500" : "text-gray-500"
+                  }`}
+                  fill="currentColor"
+                />
+                <span className="text-xs text-muted-foreground">
+                  {chat.is_active ? "Активен" : "Закрыт"}
+                </span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {new Date(chat.created_at).toLocaleString("ru-RU", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
             </div>
-            <div className="flex items-center gap-2 ml-4">
-              <Circle
-                className={`h-3 w-3 ${
-                  chat.is_active ? "text-green-500" : "text-gray-500"
-                }`}
-                fill="currentColor"
-              />
-              <span className="text-sm whitespace-nowrap">
-                {chat.is_active ? "Активен" : "Закрыт"}
-              </span>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              {new Date(chat.created_at).toLocaleString("ru-RU", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
           </div>
-        </Card>
+        </div>
       ))}
     </ScrollArea>
   );

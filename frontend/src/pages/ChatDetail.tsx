@@ -1,6 +1,5 @@
 
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
 import { API_CONFIG } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,8 +80,11 @@ const ChatMessage = ({ message, currentUserId }: { message: Message; currentUser
   );
 };
 
-const ChatDetail = () => {
-  const { id } = useParams();
+interface ChatDetailProps {
+  id: string;
+}
+
+const ChatDetail = ({ id }: ChatDetailProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -90,6 +92,8 @@ const ChatDetail = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!id) return;
+
     const csrftoken = Cookies.get('csrftoken');
     const ws = new WebSocket(
       `ws://localhost:8000/ws/support/chat/${id}/`,
@@ -142,39 +146,37 @@ const ChatDetail = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-8rem)]">
-        <div className="border-b pb-4 mb-4">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold truncate">
-              Чат #{id}
-            </h2>
-          </div>
+    <div className="flex flex-col h-full">
+      <div className="border-b pb-4 mb-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold truncate">
+            Чат #{id}
+          </h2>
         </div>
-
-        <ScrollArea className="flex-1 pr-4">
-          {messages.map((message) => (
-            <ChatMessage 
-              key={message.id} 
-              message={message} 
-              currentUserId={userData?.user_id || 0}
-            />
-          ))}
-          <div ref={messagesEndRef} />
-        </ScrollArea>
-
-        <form onSubmit={sendMessage} className="mt-4 flex gap-2">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Введите сообщение..."
-            className="flex-1"
-          />
-          <Button type="submit" disabled={!newMessage.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
       </div>
+
+      <ScrollArea className="flex-1 pr-4">
+        {messages.map((message) => (
+          <ChatMessage 
+            key={message.id} 
+            message={message} 
+            currentUserId={userData?.user_id || 0}
+          />
+        ))}
+        <div ref={messagesEndRef} />
+      </ScrollArea>
+
+      <form onSubmit={sendMessage} className="mt-4 flex gap-2">
+        <Input
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Введите сообщение..."
+          className="flex-1"
+        />
+        <Button type="submit" disabled={!newMessage.trim()}>
+          <Send className="h-4 w-4" />
+        </Button>
+      </form>
     </div>
   );
 };
