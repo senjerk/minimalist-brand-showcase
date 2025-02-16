@@ -15,7 +15,8 @@ import Constructor from "./pages/Constructor";
 import Catalog from "./pages/Catalog";
 import OrderStatus from "./pages/OrderStatus";
 import Profile from "./pages/Profile";
-import Auth from "./pages/Auth";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import StaffHome from "./pages/staff/StaffHome";
@@ -45,7 +46,8 @@ function App() {
                   <Route path="/orders" element={<OrderStatus />} />
                   <Route path="/orders/:id" element={<OrderStatus />} />
                   <Route path="/profile" element={<Profile />} />
-                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
                   <Route path="/item/:id" element={<ProductDetail />} />
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/support" element={<Chats />} />
