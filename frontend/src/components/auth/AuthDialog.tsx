@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Dialog,
@@ -13,10 +14,14 @@ import { User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export const AuthDialog = () => {
+interface AuthDialogProps {
+  defaultOpen?: boolean;
+}
+
+export const AuthDialog = ({ defaultOpen = false }: AuthDialogProps) => {
   const [isRegister, setIsRegister] = useState(false);
   const { isAuthenticated } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const navigate = useNavigate();
 
   const handleProfileClick = () => {

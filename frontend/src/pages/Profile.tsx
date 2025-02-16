@@ -1,11 +1,10 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
 import { OrdersResponse, Order } from "@/types/api";
-import { Loader2, LogOut, User, List, Settings } from "lucide-react";
+import { Loader2, LogOut, User, List, Settings, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -54,7 +53,10 @@ const Profile = () => {
     }
   };
 
-  // Компонент для отдельного заказа (оставляем без изменений)
+  const handleStaffClick = () => {
+    navigate('/staff');
+  };
+
   const OrderCard = ({ order }: { order: Order }) => {
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
 
@@ -136,7 +138,6 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto p-4">
-      {/* Мобильный заголовок */}
       <div className="flex flex-col gap-4 mb-6 md:hidden">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-full">
@@ -158,7 +159,6 @@ const Profile = () => {
         </Button>
       </div>
 
-      {/* Десктопный заголовок */}
       <div className="hidden md:block mb-8 p-6 bg-muted rounded-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -181,8 +181,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Навигационные карточки */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <Card 
           className={`cursor-pointer transition-all hover:shadow-lg ${activeSection === 'orders' ? 'border-primary' : ''}`}
           onClick={() => setActiveSection('orders')}
@@ -212,9 +211,23 @@ const Profile = () => {
             </CardDescription>
           </CardHeader>
         </Card>
+
+        <Card 
+          className="cursor-pointer transition-all hover:shadow-lg"
+          onClick={handleStaffClick}
+        >
+          <CardHeader className="pb-4">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center mb-3">
+              <Shield className="w-5 h-5 text-white" />
+            </div>
+            <CardTitle className="text-lg">Панель управления</CardTitle>
+            <CardDescription className="text-sm">
+              Доступ к админ панели
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
 
-      {/* Контент секций */}
       {activeSection === 'orders' && (
         <div>
           <h2 className="text-xl font-bold mb-4">История заказов</h2>

@@ -43,6 +43,7 @@ function App() {
                   <Route path="/orders" element={<OrderStatus />} />
                   <Route path="/orders/:id" element={<OrderStatus />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/auth" element={<Auth />} />
                   <Route path="/item/:id" element={<ProductDetail />} />
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/support" element={<Chats />} />
