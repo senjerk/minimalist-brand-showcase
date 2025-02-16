@@ -1,19 +1,15 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { API_CONFIG } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Send, UserPlus } from "lucide-react";
+import { Send } from "lucide-react";
 import { toast } from "sonner";
-import { addCSRFToken } from "@/lib/csrf";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import Cookies from 'js-cookie';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 interface Message {
   id: number;
@@ -32,16 +28,58 @@ interface User {
   user_id: number;
 }
 
-interface ChatDetailResponse {
-  data: {
-    id: number;
-    topic: string;
-    created_at: string;
-    is_active: boolean;
-    user: User;
-  };
-  message: string;
-}
+const ChatMessage = ({ message, currentUserId }: { message: Message; currentUserId: number }) => {
+  if (message.is_system) {
+    return (
+      <div className="flex justify-center my-4">
+        <span className="text-sm text-muted-foreground bg-accent px-3 py-1 rounded-full">
+          {message.content}
+        </span>
+      </div>
+    );
+  }
+
+  const isOwn = message.user_id === currentUserId;
+
+  return (
+    <div className={cn(
+      "flex gap-3 mb-4",
+      isOwn ? "flex-row-reverse" : "flex-row"
+    )}>
+      {!isOwn && (
+        <Avatar className="w-8 h-8">
+          <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${message.username}`} />
+          <AvatarFallback>{message.username[0]}</AvatarFallback>
+        </Avatar>
+      )}
+      <div className={cn(
+        "max-w-[70%]",
+        isOwn ? "items-end" : "items-start"
+      )}>
+        <div className="flex flex-col">
+          <span className="text-sm text-muted-foreground mb-1">
+            {!isOwn && message.username}
+          </span>
+          <div className={cn(
+            "rounded-lg p-3",
+            isOwn 
+              ? "bg-blue-500 text-white ml-auto" 
+              : "bg-gray-100 dark:bg-gray-800"
+          )}>
+            {message.content}
+          </div>
+        </div>
+        {isOwn && (
+          <div className="flex items-center justify-end gap-1 mt-1">
+            <span className="text-xs text-muted-foreground">
+              {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const ChatDetail = () => {
   const { id } = useParams();
@@ -49,9 +87,6 @@ const ChatDetail = () => {
   const [newMessage, setNewMessage] = useState("");
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<User[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -95,54 +130,6 @@ const ChatDetail = () => {
     };
   }, [id]);
 
-  const searchUsers = async (query: string) => {
-    if (query.length < 2) {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${API_CONFIG.baseURL}/api/users/search/?query=${query}`,
-        {
-          credentials: "include",
-        }
-      );
-      const data = await response.json();
-      setSearchResults(data.data);
-    } catch (error) {
-      console.error('Ошибка при поиске пользователей:', error);
-      toast.error("Не удалось найти пользователей");
-    }
-  };
-
-  const addUser = async (userId: number) => {
-    try {
-      const headers = await addCSRFToken();
-      const response = await fetch(
-        `${API_CONFIG.baseURL}/api/staff/support/chats/${id}/invite/`,
-        {
-          method: "POST",
-          headers,
-          credentials: "include",
-          body: JSON.stringify({ user_id: userId }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to add user");
-      }
-
-      setIsSearchOpen(false);
-      setSearchQuery("");
-      setSearchResults([]);
-      toast.success("Пользователь добавлен в чат");
-    } catch (error) {
-      console.error('Ошибка при добавлении пользователя:', error);
-      toast.error("Не удалось добавить пользователя");
-    }
-  };
-
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() && socket) {
@@ -156,91 +143,35 @@ const ChatDetail = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">
-            Чат #{id}
-          </h1>
-          {userData?.is_staff && (
-            <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <UserPlus className="h-4 w-4" />
-                  Добавить ответственного
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Добавить ответственного</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      searchUsers(e.target.value);
-                    }}
-                    placeholder="Введите имя пользователя..."
-                  />
-                  <div className="space-y-2">
-                    {searchResults.map(user => (
-                      <div
-                        key={user.id}
-                        onClick={() => addUser(user.id)}
-                        className="p-2 hover:bg-gray-100 rounded cursor-pointer"
-                      >
-                        {user.username}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-4 mb-4 h-[60vh] overflow-y-auto">
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.user_id === userData?.user_id ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    message.is_system 
-                      ? "bg-gray-200 text-gray-700"
-                      : message.user_id === userData?.user_id
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100"
-                  }`}
-                >
-                  <div className="text-xs opacity-70 mb-1">
-                    {message.username} • {new Date(message.created_at).toLocaleString("ru-RU", {
-                      hour: "2-digit",
-                      minute: "2-digit"
-                    })}
-                  </div>
-                  <p>{message.content}</p>
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
+      <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-8rem)]">
+        <div className="border-b pb-4 mb-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold truncate">
+              Чат #{id}
+            </h2>
           </div>
         </div>
 
-        <form onSubmit={sendMessage} className="flex gap-2">
+        <ScrollArea className="flex-1 pr-4">
+          {messages.map((message) => (
+            <ChatMessage 
+              key={message.id} 
+              message={message} 
+              currentUserId={userData?.user_id || 0}
+            />
+          ))}
+          <div ref={messagesEndRef} />
+        </ScrollArea>
+
+        <form onSubmit={sendMessage} className="mt-4 flex gap-2">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Введите сообщение..."
             className="flex-1"
           />
-          <Button type="submit" className="flex items-center gap-2" disabled={!newMessage.trim()}>
+          <Button type="submit" disabled={!newMessage.trim()}>
             <Send className="h-4 w-4" />
-            Отправить
           </Button>
         </form>
       </div>
@@ -248,4 +179,4 @@ const ChatDetail = () => {
   );
 };
 
-export default ChatDetail; 
+export default ChatDetail;
