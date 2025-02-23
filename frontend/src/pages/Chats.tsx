@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, MessageSquarePlus, Circle, Menu } from "lucide-react";
+import { Loader2, MessageSquarePlus } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -72,7 +72,7 @@ const ChatList = ({
   };
 
   return (
-    <ScrollArea className="h-[calc(100vh-12rem)]">
+    <ScrollArea>
       <div className="space-y-2 pr-4">
         {chats.map((chat) => (
           <div
@@ -86,17 +86,9 @@ const ChatList = ({
             <div className="flex flex-col">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-medium">#{chat.id} {chat.topic}</h3>
-                <div className="flex items-center gap-2 ml-2">
-                  <Circle
-                    className={`h-2 w-2 ${
-                      chat.is_active ? "text-green-500" : "text-gray-500"
-                    }`}
-                    fill="currentColor"
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    {chat.is_active ? "Активен" : "Закрыт"}
-                  </span>
-                </div>
+                <span className={`h-2 w-2 rounded-full ${
+                  chat.is_active ? "bg-green-500" : "bg-gray-500"
+                }`} />
               </div>
               <p className="text-xs text-muted-foreground">
                 {new Date(chat.created_at).toLocaleString("ru-RU", {
@@ -175,7 +167,7 @@ const Chats = () => {
   };
 
   const ChatListComponent = (
-    <>
+    <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Чаты</h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -216,37 +208,38 @@ const Chats = () => {
           </DialogContent>
         </Dialog>
       </div>
-      <ChatList 
-        chats={chatsData?.data || []}
-        selectedChatId={selectedChatId}
-        onChatSelect={setSelectedChatId}
-        isLoading={isLoading}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-    </>
+
+      <div className="flex-1 min-h-0">
+        <ChatList 
+          chats={chatsData?.data || []}
+          selectedChatId={selectedChatId}
+          onChatSelect={setSelectedChatId}
+          isLoading={isLoading}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      </div>
+    </div>
   );
 
   return (
     <div className="h-screen bg-background">
       <div className={cn(
-        "h-full relative",
+        "h-full",
         isMobile ? "block" : "grid grid-cols-[300px_1fr]"
       )}>
         {isMobile ? (
-          <>
-            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-              <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
-                {ChatListComponent}
-              </SheetContent>
-            </Sheet>
-          </>
+          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
+              {ChatListComponent}
+            </SheetContent>
+          </Sheet>
         ) : (
-          <div className="border-r h-full overflow-y-auto p-6">
+          <div className="border-r h-full overflow-hidden p-6">
             {ChatListComponent}
           </div>
         )}
         
-        <div className="h-full relative">
+        <div className="h-full">
           {selectedChatId ? (
             <ChatDetail 
               id={selectedChatId} 
