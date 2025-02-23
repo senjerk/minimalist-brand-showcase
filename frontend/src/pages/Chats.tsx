@@ -225,36 +225,21 @@ const Chats = () => {
     <div className="h-screen bg-background">
       <div className={cn(
         "h-full relative",
-        isMobile ? "block" : "flex"
+        isMobile ? "block" : "grid grid-cols-[300px_1fr]"
       )}>
-        {isMobile ? (
-          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
-              {ChatListComponent}
-            </SheetContent>
-          </Sheet>
-        ) : (
-          <div className="w-[300px] h-full border-r overflow-hidden p-6 flex-shrink-0">
+        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+          <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
             {ChatListComponent}
-          </div>
-        )}
+          </SheetContent>
+        </Sheet>
 
         <div className={cn(
-          "flex-1 h-full relative",
+          "h-full relative",
           isMobile && "fixed inset-0 z-50 bg-background"
         )}>
-          {selectedChatId ? (
-            <div className="absolute inset-0">
-              <ChatDetail 
-                id={selectedChatId} 
-                onOpenSidebar={() => setIsSidebarOpen(true)}
-              />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              Выберите чат для начала общения
-            </div>
-          )}
+          <div className="flex items-center justify-center h-full text-muted-foreground">
+            Выберите чат для начала общения
+          </div>
         </div>
       </div>
     </div>
