@@ -230,7 +230,7 @@ const Chats = () => {
     <div className="h-screen bg-background">
       <div className={cn(
         "h-full relative",
-        isMobile ? "block" : "grid grid-cols-[300px_1fr] gap-6 p-6"
+        isMobile ? "block" : "grid grid-cols-[300px_1fr]"
       )}>
         {isMobile ? (
           <>
@@ -241,19 +241,19 @@ const Chats = () => {
             </Sheet>
           </>
         ) : (
-          <div className="border-r pr-6 overflow-y-auto">
+          <div className="border-r h-full overflow-y-auto p-6">
             {ChatListComponent}
           </div>
         )}
         
-        <div className="h-full relative bg-background">
+        <div className="h-full relative">
           {selectedChatId ? (
             <ChatDetail 
               id={selectedChatId} 
               onOpenSidebar={() => setIsSidebarOpen(true)}
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
+            <div className="flex items-center justify-center h-full text-muted-foreground p-6">
               Выберите чат для начала общения
             </div>
           )}
