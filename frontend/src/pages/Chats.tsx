@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +22,7 @@ import {
 } from "@/components/ui/sheet";
 import { addCSRFToken } from "@/lib/csrf";
 import ChatDetail from "./ChatDetail";
+import { CreateChatDialog } from "@/components/CreateChatDialog";
 
 interface Chat {
   id: number;
@@ -114,6 +114,7 @@ const Chats = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [newChatTopic, setNewChatTopic] = useState("");
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
   const { data: chatsData, isLoading } = useQuery<ChatsResponse>({
     queryKey: ["chats"],
@@ -136,10 +137,7 @@ const Chats = () => {
     },
   });
 
-  const createChat = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newChatTopic.trim()) return;
-
+  const handleCreateChat = async (topic: string) => {
     try {
       const headers = await addCSRFToken();
       const response = await fetch(
@@ -148,7 +146,7 @@ const Chats = () => {
           method: "POST",
           headers,
           credentials: "include",
-          body: JSON.stringify({ topic: newChatTopic }),
+          body: JSON.stringify({ topic }),
         }
       );
 
@@ -157,13 +155,15 @@ const Chats = () => {
       }
 
       const data = await response.json();
-      setIsDialogOpen(false);
-      setNewChatTopic("");
+      
+      await queryClient.invalidateQueries({ queryKey: ["chats"] });
+      
       setSelectedChatId(data.data.id.toString());
       setIsSidebarOpen(false);
     } catch (error) {
       console.error("Error creating chat:", error);
       toast.error("Не удалось создать чат");
+      throw error;
     }
   };
 
@@ -171,43 +171,7 @@ const Chats = () => {
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Чаты</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="flex items-center gap-2">
-              <MessageSquarePlus className="h-4 w-4" />
-              Новый
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Создание нового чата</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={createChat} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="topic" className="text-sm font-medium">
-                  Тема чата
-                </label>
-                <Input
-                  id="topic"
-                  value={newChatTopic}
-                  onChange={(e) => setNewChatTopic(e.target.value)}
-                  placeholder="Введите тему чата..."
-                  required
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Отмена
-                </Button>
-                <Button type="submit">Создать</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <CreateChatDialog onCreateChat={handleCreateChat} />
       </div>
 
       <div className="flex-1 min-h-0">
@@ -228,22 +192,7 @@ const Chats = () => {
         "h-full",
         isMobile ? "block" : "grid grid-cols-[300px_1fr]"
       )}>
-        {isMobile ? (
-          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-            <SheetTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="absolute top-4 left-4 z-50"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
-              {ChatListComponent}
-            </SheetContent>
-          </Sheet>
-        ) : (
+        {!isMobile && (
           <div className="border-r p-6">
             {ChatListComponent}
           </div>
@@ -253,15 +202,45 @@ const Chats = () => {
           "h-full",
           isMobile && selectedChatId && "fixed inset-0 z-40 bg-background"
         )}>
-          {selectedChatId ? (
-            <ChatDetail 
-              id={selectedChatId} 
-              onOpenSidebar={() => setIsSidebarOpen(true)}
-            />
+          {isMobile ? (
+            selectedChatId ? (
+              <ChatDetail 
+                id={selectedChatId} 
+                onOpenSidebar={() => setIsSidebarOpen(true)}
+                chats={chatsData?.data || []}
+                onChatSelect={setSelectedChatId}
+                isChatsLoading={isLoading}
+                onCreateChat={handleCreateChat}
+              />
+            ) : (
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">Чаты</h2>
+                  <CreateChatDialog onCreateChat={handleCreateChat} />
+                </div>
+                <ChatList 
+                  chats={chatsData?.data || []}
+                  selectedChatId={selectedChatId}
+                  onChatSelect={setSelectedChatId}
+                  isLoading={isLoading}
+                />
+              </div>
+            )
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              Выберите чат для начала общения
-            </div>
+            selectedChatId ? (
+              <ChatDetail 
+                id={selectedChatId} 
+                onOpenSidebar={() => setIsSidebarOpen(true)}
+                chats={chatsData?.data || []}
+                onChatSelect={setSelectedChatId}
+                isChatsLoading={isLoading}
+                onCreateChat={handleCreateChat}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                Выберите чат для начала общения
+              </div>
+            )
           )}
         </div>
       </div>
