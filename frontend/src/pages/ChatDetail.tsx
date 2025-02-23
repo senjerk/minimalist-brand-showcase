@@ -154,9 +154,9 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full max-h-screen overflow-hidden">
-      <div className="border-b pb-4 mb-4 flex-shrink-0">
-        <div className="flex items-center gap-3">
+    <div className="flex flex-col h-full relative">
+      <div className="absolute top-0 left-0 right-0 border-b bg-background z-10">
+        <div className="flex items-center gap-3 p-4">
           {isMobile && (
             <Button
               variant="ghost"
@@ -175,10 +175,13 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
 
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto min-h-0 relative"
-        style={{ maxHeight: 'calc(100vh - 200px)' }}
+        className="flex-1 overflow-y-auto px-4"
+        style={{ 
+          marginTop: "72px",
+          marginBottom: "80px"
+        }}
       >
-        <div className="space-y-4 pb-4 px-4">
+        <div className="space-y-4">
           {messages.map((message) => (
             <ChatMessage 
               key={message.id} 
@@ -190,7 +193,7 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
         </div>
       </div>
 
-      <div className="sticky bottom-0 bg-background border-t mt-auto py-4 px-4">
+      <div className="absolute bottom-0 left-0 right-0 bg-background border-t p-4">
         <form onSubmit={sendMessage} className="flex w-full gap-2">
           <Input
             value={newMessage}
