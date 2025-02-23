@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { API_CONFIG } from "@/config/api";
 import { Button } from "@/components/ui/button";
@@ -155,8 +154,8 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="border-b pb-4 mb-4">
+    <div className="flex flex-col h-[calc(100vh-3rem)]">
+      <div className="border-b pb-4 mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           {isMobile && (
             <Button
@@ -176,9 +175,9 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
 
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto pr-4 min-h-0"
+        className="flex-1 overflow-y-auto min-h-0"
       >
-        <div className="space-y-4 pb-4">
+        <div className="space-y-4 pb-4 px-4">
           {messages.map((message) => (
             <ChatMessage 
               key={message.id} 
@@ -190,17 +189,19 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
         </div>
       </div>
 
-      <form onSubmit={sendMessage} className="mt-4 flex gap-2 pt-4 border-t">
-        <Input
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Введите сообщение..."
-          className="flex-1"
-        />
-        <Button type="submit" disabled={!newMessage.trim()}>
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
+      <div className="mt-4 flex gap-2 pt-4 border-t px-4 flex-shrink-0">
+        <form onSubmit={sendMessage} className="flex w-full gap-2">
+          <Input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Введите сообщение..."
+            className="flex-1"
+          />
+          <Button type="submit" disabled={!newMessage.trim()}>
+            <Send className="h-4 w-4" />
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };
