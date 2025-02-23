@@ -1,14 +1,12 @@
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, MessageSquarePlus, Circle } from "lucide-react";
+import { Loader2, MessageSquarePlus, Circle, Menu } from "lucide-react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -18,6 +16,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { addCSRFToken } from "@/lib/csrf";
 import ChatDetail from "./ChatDetail";
 
@@ -37,12 +40,14 @@ const ChatList = ({
   chats, 
   selectedChatId, 
   onChatSelect,
-  isLoading 
+  isLoading,
+  onClose 
 }: { 
   chats: Chat[],
   selectedChatId?: string,
   onChatSelect: (chatId: string) => void,
-  isLoading: boolean
+  isLoading: boolean,
+  onClose?: () => void
 }) => {
   if (isLoading) {
     return (
@@ -60,44 +65,53 @@ const ChatList = ({
     );
   }
 
+  const handleChatClick = (chatId: string) => {
+    onChatSelect(chatId);
+    if (onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <ScrollArea className="h-[calc(100vh-16rem)]">
-      {chats.map((chat) => (
-        <div
-          key={chat.id}
-          onClick={() => onChatSelect(chat.id.toString())}
-          className={cn(
-            "bg-card mb-2 rounded-lg p-4 cursor-pointer hover:bg-accent transition-colors",
-            selectedChatId === chat.id.toString() && "bg-accent"
-          )}
-        >
-          <div className="flex flex-col">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-medium">#{chat.id} {chat.topic}</h3>
-              <div className="flex items-center gap-2 ml-2">
-                <Circle
-                  className={`h-2 w-2 ${
-                    chat.is_active ? "text-green-500" : "text-gray-500"
-                  }`}
-                  fill="currentColor"
-                />
-                <span className="text-xs text-muted-foreground">
-                  {chat.is_active ? "Активен" : "Закрыт"}
-                </span>
+    <ScrollArea className="h-[calc(100vh-12rem)]">
+      <div className="space-y-2 pr-4">
+        {chats.map((chat) => (
+          <div
+            key={chat.id}
+            onClick={() => handleChatClick(chat.id.toString())}
+            className={cn(
+              "bg-card rounded-lg p-4 cursor-pointer hover:bg-accent transition-colors",
+              selectedChatId === chat.id.toString() && "bg-accent"
+            )}
+          >
+            <div className="flex flex-col">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-medium">#{chat.id} {chat.topic}</h3>
+                <div className="flex items-center gap-2 ml-2">
+                  <Circle
+                    className={`h-2 w-2 ${
+                      chat.is_active ? "text-green-500" : "text-gray-500"
+                    }`}
+                    fill="currentColor"
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {chat.is_active ? "Активен" : "Закрыт"}
+                  </span>
+                </div>
               </div>
+              <p className="text-xs text-muted-foreground">
+                {new Date(chat.created_at).toLocaleString("ru-RU", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {new Date(chat.created_at).toLocaleString("ru-RU", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </ScrollArea>
   );
 };
@@ -105,6 +119,7 @@ const ChatList = ({
 const Chats = () => {
   const [selectedChatId, setSelectedChatId] = useState<string>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [newChatTopic, setNewChatTopic] = useState("");
   const isMobile = useIsMobile();
 
@@ -153,74 +168,95 @@ const Chats = () => {
       setIsDialogOpen(false);
       setNewChatTopic("");
       setSelectedChatId(data.data.id.toString());
+      setIsSidebarOpen(false);
     } catch (error) {
       console.error("Error creating chat:", error);
       toast.error("Не удалось создать чат");
     }
   };
 
-  const handleChatSelect = (chatId: string) => {
-    setSelectedChatId(chatId);
-  };
+  const ChatListComponent = (
+    <>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Чаты</h2>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="flex items-center gap-2">
+              <MessageSquarePlus className="h-4 w-4" />
+              Новый
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Создание нового чата</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={createChat} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="topic" className="text-sm font-medium">
+                  Тема чата
+                </label>
+                <Input
+                  id="topic"
+                  value={newChatTopic}
+                  onChange={(e) => setNewChatTopic(e.target.value)}
+                  placeholder="Введите тему чата..."
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
+                  Отмена
+                </Button>
+                <Button type="submit">Создать</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+      <ChatList 
+        chats={chatsData?.data || []}
+        selectedChatId={selectedChatId}
+        onChatSelect={setSelectedChatId}
+        isLoading={isLoading}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+    </>
+  );
 
   return (
-    <div className="container mx-auto px-4 py-8 h-[calc(100vh-4rem)]">
+    <div className="h-[calc(100vh-4rem)] overflow-hidden">
       <div className={cn(
         "h-full",
-        isMobile ? "grid grid-cols-1" : "grid grid-cols-[300px_1fr] gap-6"
+        isMobile ? "block" : "grid grid-cols-[300px_1fr] gap-6"
       )}>
-        <div className={cn(
-          "border-r pr-6",
-          isMobile && "pr-0 border-r-0"
-        )}>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Чаты</h2>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="flex items-center gap-2">
-                  <MessageSquarePlus className="h-4 w-4" />
-                  Новый
+        {isMobile ? (
+          <>
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="fixed top-20 left-4 z-40"
+                >
+                  <Menu className="h-4 w-4" />
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Создание нового чата</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={createChat} className="space-y-4">
-                  <div className="space-y-2">
-                    <label htmlFor="topic" className="text-sm font-medium">
-                      Тема чата
-                    </label>
-                    <Input
-                      id="topic"
-                      value={newChatTopic}
-                      onChange={(e) => setNewChatTopic(e.target.value)}
-                      placeholder="Введите тему чата..."
-                      required
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
-                    >
-                      Отмена
-                    </Button>
-                    <Button type="submit">Создать</Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
+                {ChatListComponent}
+              </SheetContent>
+            </Sheet>
+          </>
+        ) : (
+          <div className="border-r pr-6 overflow-hidden">
+            {ChatListComponent}
           </div>
-          <ChatList 
-            chats={chatsData?.data || []}
-            selectedChatId={selectedChatId}
-            onChatSelect={handleChatSelect}
-            isLoading={isLoading}
-          />
-        </div>
-        <div className="flex flex-col h-full">
+        )}
+        
+        <div className="flex flex-col h-full overflow-hidden">
           {selectedChatId ? (
             <ChatDetail id={selectedChatId} />
           ) : (

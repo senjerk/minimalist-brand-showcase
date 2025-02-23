@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { API_CONFIG } from "@/config/api";
 import { Button } from "@/components/ui/button";
@@ -134,6 +133,12 @@ const ChatDetail = ({ id }: ChatDetailProps) => {
     };
   }, [id]);
 
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  }, [messages]);
+
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() && socket) {
@@ -146,7 +151,7 @@ const ChatDetail = ({ id }: ChatDetailProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full max-h-[calc(100vh-8rem)]">
+    <div className="flex flex-col h-full overflow-hidden">
       <div className="border-b pb-4 mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold truncate">
@@ -155,8 +160,8 @@ const ChatDetail = ({ id }: ChatDetailProps) => {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 pr-4 min-h-0">
-        <div className="space-y-4">
+      <ScrollArea className="flex-1 pr-4 min-h-0 overflow-y-auto">
+        <div className="space-y-4 pb-4">
           {messages.map((message) => (
             <ChatMessage 
               key={message.id} 
