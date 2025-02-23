@@ -227,9 +227,9 @@ const Chats = () => {
   );
 
   return (
-    <div className="h-screen">
+    <div className="h-screen bg-background">
       <div className={cn(
-        "h-full",
+        "h-full relative",
         isMobile ? "block" : "grid grid-cols-[300px_1fr] gap-6 p-6"
       )}>
         {isMobile ? (
@@ -246,7 +246,7 @@ const Chats = () => {
           </div>
         )}
         
-        <div className="h-full overflow-hidden">
+        <div className="h-full relative bg-background">
           {selectedChatId ? (
             <ChatDetail 
               id={selectedChatId} 
