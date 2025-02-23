@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
@@ -226,22 +225,29 @@ const Chats = () => {
     <div className="h-screen bg-background">
       <div className={cn(
         "h-full relative",
-        isMobile ? "block" : "grid grid-cols-[300px_1fr]"
+        isMobile ? "block" : "flex"
       )}>
-        {isMobile ? (
-          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
-              {ChatListComponent}
-            </SheetContent>
-          </Sheet>
-        ) : (
-          <div className="h-full border-r overflow-hidden p-6">
-            {ChatListComponent}
-          </div>
-        )}
-        
+        {/* Левая панель со списком чатов */}
         <div className={cn(
-          "h-full relative",
+          isMobile ? (
+            // Мобильная версия - выдвижная панель
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+              <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
+                {ChatListComponent}
+              </SheetContent>
+            </Sheet>
+          ) : (
+            // Десктопная версия - фиксированная левая панель
+            <div className="w-[300px] h-full border-r overflow-hidden p-6 flex-shrink-0">
+              {ChatListComponent}
+            </div>
+          )
+        )}>
+        </div>
+
+        {/* Правая панель с чатом */}
+        <div className={cn(
+          "flex-1 h-full relative",
           isMobile && "fixed inset-0 z-50 bg-background"
         )}>
           {selectedChatId ? (
