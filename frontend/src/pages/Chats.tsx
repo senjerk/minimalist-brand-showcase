@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
@@ -225,7 +226,7 @@ const Chats = () => {
     <div className="h-screen bg-background">
       <div className={cn(
         "h-full",
-        isMobile ? "block" : "grid grid-cols-[300px_1fr]"
+        isMobile ? "" : "grid grid-cols-[300px_1fr]"
       )}>
         {isMobile ? (
           <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
@@ -234,19 +235,19 @@ const Chats = () => {
             </SheetContent>
           </Sheet>
         ) : (
-          <div className="border-r h-full overflow-hidden p-6">
+          <div className="h-full border-r overflow-hidden p-6">
             {ChatListComponent}
           </div>
         )}
         
-        <div className="h-full">
+        <div className="h-full relative">
           {selectedChatId ? (
             <ChatDetail 
               id={selectedChatId} 
               onOpenSidebar={() => setIsSidebarOpen(true)}
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground p-6">
+            <div className="flex items-center justify-center h-full text-muted-foreground">
               Выберите чат для начала общения
             </div>
           )}
