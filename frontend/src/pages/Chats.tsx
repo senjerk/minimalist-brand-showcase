@@ -73,7 +73,7 @@ const ChatList = ({
   };
 
   return (
-    <ScrollArea>
+    <ScrollArea className="flex-1">
       <div className="space-y-2 pr-4">
         {chats.map((chat) => (
           <div
@@ -225,31 +225,44 @@ const Chats = () => {
   return (
     <div className="h-screen bg-background">
       <div className={cn(
-        "h-full relative",
+        "h-full",
         isMobile ? "block" : "grid grid-cols-[300px_1fr]"
       )}>
-        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-          <SheetTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="absolute top-4 left-4 z-50"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
+        {isMobile ? (
+          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            <SheetTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="absolute top-4 left-4 z-50"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
+              {ChatListComponent}
+            </SheetContent>
+          </Sheet>
+        ) : (
+          <div className="border-r p-6">
             {ChatListComponent}
-          </SheetContent>
-        </Sheet>
+          </div>
+        )}
 
         <div className={cn(
-          "h-full relative",
-          isMobile && "fixed inset-0 z-40 bg-background"
+          "h-full",
+          isMobile && selectedChatId && "fixed inset-0 z-40 bg-background"
         )}>
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            Выберите чат для начала общения
-          </div>
+          {selectedChatId ? (
+            <ChatDetail 
+              id={selectedChatId} 
+              onOpenSidebar={() => setIsSidebarOpen(true)}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              Выберите чат для начала общения
+            </div>
+          )}
         </div>
       </div>
     </div>
