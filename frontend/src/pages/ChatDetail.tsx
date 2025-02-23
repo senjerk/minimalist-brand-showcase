@@ -1,12 +1,14 @@
+
 import { useState, useEffect, useRef } from "react";
 import { API_CONFIG } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Send, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import Cookies from 'js-cookie';
 
 interface Message {
@@ -81,14 +83,16 @@ const ChatMessage = ({ message, currentUserId }: { message: Message; currentUser
 
 interface ChatDetailProps {
   id: string;
+  onOpenSidebar?: () => void;
 }
 
-const ChatDetail = ({ id }: ChatDetailProps) => {
+const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!id) return;
@@ -109,11 +113,15 @@ const ChatDetail = ({ id }: ChatDetailProps) => {
 
       if (data.type === 'chat_message') {
         setMessages(prev => [...prev, data.message]);
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (!isMobile) {
+          messagesEndRef.current?.scrollIntoView();
+        }
       } else if (data.type === 'chat_history') {
         setMessages(data.messages);
         setUserData(data.user);
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (!isMobile) {
+          messagesEndRef.current?.scrollIntoView();
+        }
       }
     };
 
@@ -131,13 +139,7 @@ const ChatDetail = ({ id }: ChatDetailProps) => {
     return () => {
       ws.close();
     };
-  }, [id]);
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
-    }
-  }, [messages]);
+  }, [id, isMobile]);
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,16 +153,29 @@ const ChatDetail = ({ id }: ChatDetailProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
       <div className="border-b pb-4 mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onOpenSidebar}
+              className="mr-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          )}
           <h2 className="text-xl font-bold truncate">
             Чат #{id}
           </h2>
         </div>
       </div>
 
-      <ScrollArea className="flex-1 pr-4 min-h-0 overflow-y-auto">
+      <ScrollArea className={cn(
+        "flex-1 pr-4",
+        isMobile ? "h-[calc(100vh-8rem)]" : "h-[calc(100vh-12rem)]"
+      )}>
         <div className="space-y-4 pb-4">
           {messages.map((message) => (
             <ChatMessage 
@@ -173,7 +188,7 @@ const ChatDetail = ({ id }: ChatDetailProps) => {
         </div>
       </ScrollArea>
 
-      <form onSubmit={sendMessage} className="mt-4 flex gap-2 flex-shrink-0 pt-4 border-t">
+      <form onSubmit={sendMessage} className="mt-4 flex gap-2 pt-4 border-t">
         <Input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
