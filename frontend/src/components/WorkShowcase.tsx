@@ -4,70 +4,68 @@ import { motion } from "framer-motion";
 const works = [
   {
     id: 1,
-    title: "КАЧЕСТВО И СТИЛЬ",
-    image: "/lovable-uploads/260d40a7-351d-4bd0-9646-5e9f1b997cc6.png",
-    aspectRatio: "aspect-[4/5]",
-    span: "col-span-1 md:col-span-1",
+    title: "КАЧЕСТВО\nИ СТИЛЬ",
+    image: "/lovable-uploads/2c9d9c95-a58b-4846-9f9f-0e1d35d8f322.png",
+    bgClass: "bg-gradient-to-b from-purple-300 to-purple-500",
+    gridArea: "col-span-12 md:col-span-4 row-span-2",
   },
   {
     id: 2,
     title: "КАСТОМИЗАЦИЯ",
-    image: "/lovable-uploads/260d40a7-351d-4bd0-9646-5e9f1b997cc6.png",
-    aspectRatio: "aspect-[4/3]",
-    span: "col-span-1 md:col-span-1",
+    image: "/lovable-uploads/2c9d9c95-a58b-4846-9f9f-0e1d35d8f322.png",
+    bgClass: "bg-gradient-to-b from-gray-300 to-gray-600",
+    gridArea: "col-span-12 md:col-span-8 row-span-1",
   },
   {
     id: 3,
     title: "OVERSIZE ИЗДЕЛИЯ\nДЛЯ МУЖЧИН И\nЖЕНЩИН",
-    image: "/lovable-uploads/260d40a7-351d-4bd0-9646-5e9f1b997cc6.png",
-    aspectRatio: "aspect-[3/4]",
-    span: "col-span-1 md:col-span-1",
+    image: "/lovable-uploads/2c9d9c95-a58b-4846-9f9f-0e1d35d8f322.png",
+    bgClass: "bg-gradient-to-b from-gray-400 to-gray-700",
+    gridArea: "col-span-12 md:col-span-8 row-span-1",
   },
   {
     id: 4,
-    title: "ТРЕНДОВЫЕ ШВЫ НАРУЖУ",
-    image: "/lovable-uploads/260d40a7-351d-4bd0-9646-5e9f1b997cc6.png",
-    aspectRatio: "aspect-[16/9]",
-    span: "col-span-1 md:col-span-3",
+    title: "ТРЕНДОВЫЕ\nШВЫ НАРУЖУ",
+    image: "/lovable-uploads/2c9d9c95-a58b-4846-9f9f-0e1d35d8f322.png",
+    bgClass: "bg-gradient-to-b from-gray-300 to-gray-600",
+    gridArea: "col-span-12 row-span-1",
   },
 ];
 
 const WorkShowcase = () => {
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-background">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+    <section className="py-8 px-4 sm:px-6 lg:px-8 bg-background">
+      <div className="max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-12 auto-rows-[300px] gap-4">
           {works.map((work) => (
             <motion.div
               key={work.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6, delay: work.id * 0.1 }}
-              className={`relative group overflow-hidden rounded-2xl ${work.span} ${work.aspectRatio}`}
+              className={`relative overflow-hidden ${work.gridArea}`}
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 z-10" />
-              
-              <img
-                src={work.image}
-                alt={work.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              <motion.div 
+                className={`absolute inset-0 ${work.bgClass} bg-opacity-90`}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
               />
               
-              <div className="absolute inset-0 z-20 p-6 flex items-end">
-                <motion.h3 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: work.id * 0.2 }}
-                  className="text-white text-xl md:text-2xl font-bold tracking-wider whitespace-pre-line"
-                >
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="relative z-10 p-8 h-full flex flex-col justify-end"
+              >
+                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-wider whitespace-pre-line leading-tight">
                   {work.title}
-                </motion.h3>
-              </div>
+                </h3>
+              </motion.div>
 
-              {/* Hover Effect Overlay */}
-              <div className="absolute inset-0 bg-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+              {/* Hover Effect */}
+              <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity duration-300" />
             </motion.div>
           ))}
         </div>
