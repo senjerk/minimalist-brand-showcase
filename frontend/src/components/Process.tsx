@@ -36,16 +36,17 @@ const Process = () => {
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
           Как мы работаем
         </h2>
-        <div className="relative grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4">
+        <div className="relative grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-12">
           {steps.map((step, index) => (
-            <div key={step.id} className="relative">
+            <div key={step.id} className="relative flex items-center">
               {/* Карточка */}
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, delay: index * 0.1 }}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                className="relative z-10 bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-200"
+                className="relative z-10 bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-200 w-full"
               >
                 {/* Номер шага */}
                 <div className="absolute -top-3 -left-3 w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-lg text-lg font-medium shadow-md">
@@ -66,15 +67,16 @@ const Process = () => {
 
               {/* Стрелки для десктопа */}
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-1/2 -right-6 transform -translate-y-1/2 z-20">
+                <div className="hidden md:flex absolute left-full transform translate-x-2">
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.2, delay: index * 0.1 }}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
                   >
                     <ArrowRight 
-                      className="w-6 h-6 text-blue-500" 
-                      strokeWidth={2.5}
+                      className="w-8 h-8 text-blue-500" 
+                      strokeWidth={2}
                     />
                   </motion.div>
                 </div>
@@ -82,15 +84,16 @@ const Process = () => {
 
               {/* Стрелки для мобильных */}
               {index < steps.length - 1 && (
-                <div className="md:hidden absolute left-1/2 -bottom-6 transform -translate-x-1/2">
+                <div className="md:hidden absolute top-full left-1/2 transform -translate-x-1/2 translate-y-4">
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.2, delay: index * 0.1 }}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
                   >
                     <ArrowRight 
-                      className="w-6 h-6 text-blue-500 transform rotate-90" 
-                      strokeWidth={2.5}
+                      className="w-8 h-8 text-blue-500 transform rotate-90" 
+                      strokeWidth={2}
                     />
                   </motion.div>
                 </div>
