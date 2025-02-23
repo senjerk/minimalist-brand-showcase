@@ -227,10 +227,10 @@ const Chats = () => {
   );
 
   return (
-    <div className="h-screen p-6">
+    <div className="h-screen">
       <div className={cn(
-        "h-[calc(100vh-3rem)]",
-        isMobile ? "block" : "grid grid-cols-[300px_1fr] gap-6"
+        "h-full",
+        isMobile ? "block" : "grid grid-cols-[300px_1fr] gap-6 p-6"
       )}>
         {isMobile ? (
           <>
@@ -241,12 +241,12 @@ const Chats = () => {
             </Sheet>
           </>
         ) : (
-          <div className="border-r pr-6 h-full">
+          <div className="border-r pr-6 overflow-y-auto">
             {ChatListComponent}
           </div>
         )}
         
-        <div className="h-full">
+        <div className="h-full overflow-hidden">
           {selectedChatId ? (
             <ChatDetail 
               id={selectedChatId} 
