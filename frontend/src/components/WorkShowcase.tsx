@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -34,7 +35,15 @@ const works: WorkItem[] = [
     hoverImage: "https://static.tildacdn.com/tild3031-6166-4463-b032-363533646239/DSC09373.png",
     bgClass: "bg-gradient-to-b from-gray-400 to-gray-700",
     gridArea: "col-span-12 md:col-span-8 row-span-1",
-  }
+  },
+  {
+    id: 4,
+    title: "ВЫШИВКА\nНА ЛЮБЫХ ТКАНЯХ",
+    defaultImage: "https://static.tildacdn.com/tild6634-3030-4534-b664-613064303133/photo_2024-08-12_16-.jpg",
+    hoverImage: "https://static.tildacdn.com/tild6634-3030-4534-b664-613064303133/photo_2024-08-12_16-.jpg",
+    bgClass: "bg-gradient-to-b from-gray-300 to-gray-600",
+    gridArea: "col-span-12 row-span-1",
+  },
 ];
 
 const WorkShowcase = () => {
@@ -55,22 +64,14 @@ const WorkShowcase = () => {
               onMouseEnter={() => setHoveredId(work.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              <motion.div 
-                className={`absolute inset-0 ${work.bgClass} bg-opacity-90`}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              />
+              {/* Subtle gradient overlay for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent z-10" />
               
               {/* Default Image */}
               <motion.img
                 src={work.defaultImage}
                 alt={work.title}
-                className={`absolute inset-0 w-full h-full object-cover ${
-                  work.id === 2 ? 'object-[center_70%]' : 
-                  work.id === 3 ? 'object-[center_40%]' : 
-                  'object-center'
-                }`}
+                className="absolute inset-0 w-full h-full object-cover"
                 initial={{ opacity: 1 }}
                 animate={{ opacity: hoveredId === work.id ? 0 : 1 }}
                 transition={{ duration: 0.3 }}
@@ -80,11 +81,7 @@ const WorkShowcase = () => {
               <motion.img
                 src={work.hoverImage}
                 alt={work.title}
-                className={`absolute inset-0 w-full h-full object-cover ${
-                  work.id === 2 ? 'object-[center_83%]' : 
-                  work.id === 3 ? 'object-[center_45%]' : 
-                  'object-center'
-                }`}
+                className="absolute inset-0 w-full h-full object-cover"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: hoveredId === work.id ? 1 : 0 }}
                 transition={{ duration: 0.3 }}
@@ -94,9 +91,9 @@ const WorkShowcase = () => {
                 initial={{ y: 20, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="relative z-10 p-8 h-full flex flex-col justify-end"
+                className="relative z-20 p-8 h-full flex flex-col justify-end"
               >
-                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-wider whitespace-pre-line leading-tight drop-shadow-lg">
+                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-wider whitespace-pre-line leading-tight text-shadow-sm">
                   {work.title}
                 </h3>
               </motion.div>
