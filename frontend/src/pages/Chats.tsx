@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, MessageSquarePlus } from "lucide-react";
+import { Loader2, MessageSquarePlus, Menu } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -228,6 +229,15 @@ const Chats = () => {
         isMobile ? "block" : "grid grid-cols-[300px_1fr]"
       )}>
         <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+          <SheetTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="absolute top-4 left-4 z-50"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
           <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
             {ChatListComponent}
           </SheetContent>
@@ -235,7 +245,7 @@ const Chats = () => {
 
         <div className={cn(
           "h-full relative",
-          isMobile && "fixed inset-0 z-50 bg-background"
+          isMobile && "fixed inset-0 z-40 bg-background"
         )}>
           <div className="flex items-center justify-center h-full text-muted-foreground">
             Выберите чат для начала общения
