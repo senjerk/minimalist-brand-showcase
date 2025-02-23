@@ -259,7 +259,7 @@ const ChatDetail = ({
     setIsChatLoading(true);
     const csrftoken = Cookies.get('csrftoken');
     const ws = new WebSocket(
-      `ws://127.0.0.1/ws/support/chat/${id}/`,
+      `ws://45.153.190.195/ws/support/chat/${id}/`,
       ['X-CSRFToken', csrftoken]
     );
 
