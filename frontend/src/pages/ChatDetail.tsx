@@ -55,9 +55,11 @@ const ChatMessage = ({ message, currentUserId }: { message: Message; currentUser
         isOwn ? "items-end" : "items-start"
       )}>
         <div className="flex flex-col">
-          <span className="text-sm text-muted-foreground mb-1">
-            {!isOwn && message.username}
-          </span>
+          {!isOwn && (
+            <span className="text-sm text-muted-foreground mb-1">
+              {message.username}
+            </span>
+          )}
           <div className={cn(
             "rounded-lg p-3",
             isOwn 
@@ -66,25 +68,20 @@ const ChatMessage = ({ message, currentUserId }: { message: Message; currentUser
           )}>
             {message.content}
           </div>
+          {isOwn && (
+            <div className="flex items-center justify-end gap-1 mt-1">
+              <span className="text-xs text-muted-foreground">
+                {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          )}
         </div>
-        {isOwn && (
-          <div className="flex items-center justify-end gap-1 mt-1">
-            <span className="text-xs text-muted-foreground">
-              {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
-interface ChatDetailProps {
-  id: string;
-  onOpenSidebar?: () => void;
-}
-
-const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
+const ChatDetail = ({ id, onOpenSidebar }: { id: string; onOpenSidebar?: () => void }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -144,17 +141,17 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim() && socket) {
-      socket.send(JSON.stringify({
-        type: 'chat_message',
-        message: newMessage
-      }));
-      setNewMessage("");
-    }
+    if (!newMessage.trim() || !socket) return;
+
+    socket.send(JSON.stringify({
+      type: 'chat_message',
+      message: newMessage
+    }));
+    setNewMessage("");
   };
 
   return (
-    <div className="flex flex-col fixed inset-0 bg-background">
+    <div className="flex flex-col h-full bg-background">
       <div className="border-b bg-background z-10">
         <div className="flex items-center gap-3 p-4">
           {isMobile && (
