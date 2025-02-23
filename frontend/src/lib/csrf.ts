@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 import { API_CONFIG } from '@/config/api';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = API_CONFIG.baseURL;
 
 export async function getCSRFToken(): Promise<string | undefined> {
   // Получаем токен из cookies
@@ -57,6 +57,6 @@ export async function addCSRFToken(): Promise<HeadersInit> {
 
   return {
     'Content-Type': 'application/json',
-    'X-CSRFToken': csrfToken || '',
+    'X-Csrftoken': csrfToken,
   };
 } 

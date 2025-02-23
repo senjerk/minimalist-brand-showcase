@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LoginFormData, RegisterFormData } from '@/types/auth';
 import { addCSRFToken } from '@/lib/csrf';
+import { API_CONFIG } from '@/config/api';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -13,7 +14,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = API_CONFIG.baseURL;
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -50,20 +51,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const headers = await addCSRFToken();
       const response = await fetch(`${API_BASE_URL}/api/users/login/`, {
         method: 'POST',
-        headers,
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         credentials: 'include',
         body: JSON.stringify(data),
       });
+      
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+      
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers));
+        throw new Error('Ошибка при разборе ответа сервера');
+      }
       
       if (response.ok) {
         setIsAuthenticated(true);
         toast({
           title: "Успешно",
-          description: "Вы успешно вошли в систему",
+          description: responseData.message || "Вы успешно вошли в систему",
         });
       } else {
-        const errorData = await response.json();
-        const errorMessage = errorData.detail || "Ошибка при входе";
+        const errorMessage = responseData.errors?.form_error || 
+                           responseData.message || 
+                           "Ошибка при входе";
         toast({
           variant: "destructive",
           title: "Ошибка",
@@ -72,9 +91,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(errorMessage);
       }
     } catch (error: any) {
+      console.error("Полная ошибка:", error);
       const errorMessage = error.message || "Ошибка при входе";
       toast({
-        variant: "destructive",
+        variant: "destructive", 
         title: "Ошибка",
         description: errorMessage,
       });

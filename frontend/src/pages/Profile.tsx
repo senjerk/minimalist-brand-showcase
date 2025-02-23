@@ -8,6 +8,7 @@ import { Loader2, LogOut, User, List, Settings, Shield, MessageCircle } from "lu
 import { toast } from "sonner";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import Cookies from "js-cookie";
 
 const Profile = () => {
   const { logout, user } = useAuth();
@@ -116,28 +117,28 @@ const Profile = () => {
     const handleCancel = async () => {
       setIsCancelling(true);
       try {
+        const csrftoken = Cookies.get('csrftoken');
         const response = await fetch(
           `${API_CONFIG.baseURL}${API_CONFIG.endpoints.orderDetail(order.id)}`,
           {
-            method: 'PATCH',
+            method: 'DELETE',
             credentials: 'include',
             headers: {
-              'Content-Type': 'application/json',
+              'X-CSRFToken': csrftoken || '',
             },
-            body: JSON.stringify({ status: 'CN' }),
           }
         );
 
         if (!response.ok) {
-          throw new Error('Failed to cancel order');
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to cancel order');
         }
 
         toast.success("Заказ успешно отменен");
-        // Обновляем данные
         queryClient.invalidateQueries({ queryKey: ['orders'] });
       } catch (error) {
         console.error('Error cancelling order:', error);
-        toast.error("Не удалось отменить заказ");
+        toast.error(error instanceof Error ? error.message : "Не удалось отменить заказ");
       } finally {
         setIsCancelling(false);
       }
@@ -182,7 +183,7 @@ const Profile = () => {
                     Отмена...
                   </>
                 ) : (
-                  'Отменить заказ'
+                  'Отменить'
                 )}
               </Button>
             )}

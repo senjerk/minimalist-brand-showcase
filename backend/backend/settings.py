@@ -218,11 +218,11 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CELERY_BROKER_URL = os.getenv(
     "CELERY_BROKER_URL",
-    "redis://localhost:6379/0",
+    "redis://redis:6379/0",
 )
 CELERY_RESULT_BACKEND = os.getenv(
     "CELERY_RESULT_BACKEND",
-    "redis://localhost:6379/0",
+    "redis://redis:6379/0",
 )
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
@@ -272,7 +272,7 @@ LOGGING = {
 
 ELASTICSEARCH_HOST = os.getenv(
     "ELASTICSEARCH_HOST",
-    "http://localhost:9200",
+    "http://elasticsearch:9200",
 )
 ELASTICSEARCH_USER = os.getenv(
     "ELASTICSEARCH_USER",
@@ -302,7 +302,7 @@ CHANNEL_LAYERS = {
             "hosts": [
                 os.getenv(
                     "CHANNEL_LAYERS_HOST",
-                    "redis://localhost:6379/2",
+                    "redis://redis:6379/2",
                 )
             ],
             "symmetric_encryption_keys": [SECRET_KEY],
@@ -313,6 +313,16 @@ CHANNEL_LAYERS = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": os.getenv("REDIS_CACHE_URL", "redis://localhost:6379/1"),
+        "LOCATION": os.getenv("REDIS_CACHE_URL", "redis://redis:6379/1"),
     }
 }
+
+
+ADMINS = [
+    ("senjerk", "22admin@admin.com"),
+]
+
+GRAFANA_URL = os.getenv("GRAFANA_URL", "http://grafana:3000")
+GRAFANA_API_KEY = os.getenv("GRAFANA_API_KEY", None)
+
+ELASTICSEARCH_LOG_INDEX_PATTERN = "django-logs-*"

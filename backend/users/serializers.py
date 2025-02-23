@@ -54,18 +54,36 @@ class LoginSerializer(rest_framework.serializers.Serializer):
     )
 
     def validate(self, data):
-        username = data["username"]
-        password = data["password"]
+        try:
+            username = data.get("username")
+            password = data.get("password")
 
-        user = django.contrib.auth.authenticate(
-            username=username, password=password
-        )
-        if user is None:
-            raise rest_framework.serializers.ValidationError(
-                {"form_error": "Пользователь не найден"}
+            if not username or not password:
+                raise rest_framework.serializers.ValidationError(
+                    {"form_error": "Необходимо указать имя пользователя и пароль"}
+                )
+
+            user = django.contrib.auth.authenticate(
+                username=username, 
+                password=password
             )
+            
+            if user is None:
+                raise rest_framework.serializers.ValidationError(
+                    {"form_error": "Неверное имя пользователя или пароль"}
+                )
 
-        return {"user": user}
+            if not user.is_active:
+                raise rest_framework.serializers.ValidationError(
+                    {"form_error": "Этот аккаунт отключен"}
+                )
+
+            return {"user": user}
+            
+        except Exception as e:
+            raise rest_framework.serializers.ValidationError(
+                {"form_error": str(e)}
+            )
 
 
 class EmailTokenSerializer(rest_framework.serializers.Serializer):

@@ -1,0 +1,117 @@
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/cert.pem:/etc/nginx/cert.pem
+      - ./nginx/key.pem:/etc/nginx/key.pem
+      - ./media:/usr/share/nginx/html/media
+      - ./nginx/html:/usr/share/nginx/html
+      - static_volume:/usr/share/nginx/html/staticfiles
+    depends_on:
+      - django
+
+  django:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ./media:/app/media
+      - static_volume:/app/backend/staticfiles
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env.development
+    environment:
+      - POSTGRES_HOST=db
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+  
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: sh -c "cd backend && celery -A backend worker --loglevel=info"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+  react:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - django
+
+  db:
+    image: postgres:latest
+    env_file:
+      - ./backend/.env.development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    mem_limit: 8g
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.17.0
+    volumes:
+      - ./logstash/config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+    ports:
+      - "5000:5000"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    depends_on:
+      - elasticsearch
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+    depends_on:
+      - elasticsearch
+
+volumes:
+  postgres_data:
+  elasticsearch_data:
+  grafana_data:
+  static_volume:

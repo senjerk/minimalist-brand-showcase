@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  baseURL: 'http://localhost:8000',
+  baseURL: 'https://127.0.0.1',
   endpoints: {
     csrf: '/api/get-csrf-token/',
     products: '/api/catalog/products/',

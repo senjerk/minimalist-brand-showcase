@@ -13,7 +13,7 @@ interface ChatListProps {
   chats: Chat[];
   selectedChatId?: string;
   onChatSelect: (chatId: string) => void;
-  isLoading: boolean;
+  isLoading?: boolean;
   onClose?: () => void;
 }
 
@@ -48,8 +48,8 @@ export const ChatList = ({
   };
 
   return (
-    <ScrollArea className="h-full">
-      <div className="space-y-2 pr-4 pb-4">
+    <ScrollArea className="flex-1">
+      <div className="space-y-2 pr-4">
         {chats.map((chat) => (
           <div
             key={chat.id}

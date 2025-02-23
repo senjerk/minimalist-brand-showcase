@@ -27,7 +27,7 @@ const HeroSection = () => {
             {/* Glass Background for Text */}
             <div className="backdrop-blur-sm bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20 inline-block">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-                Изысканная вышивка
+                4 Изысканная вышивка
                 <br />
                 <span className="bg-gradient-to-r from-purple-300 to-pink-200 bg-clip-text text-transparent">
                   для вашего стиля

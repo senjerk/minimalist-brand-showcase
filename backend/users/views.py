@@ -7,6 +7,7 @@ import rest_framework.generics
 import rest_framework.permissions
 import rest_framework.status
 import rest_framework.views
+import rest_framework.response
 
 import core.tasks
 import core.utils
@@ -42,20 +43,57 @@ class LoginView(rest_framework.generics.GenericAPIView):
     serializer_class = users.serializers.LoginSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            return core.utils.error_response(
-                serializer_errors=serializer.errors,
-                message="Ошибка авторизации",
-                http_status=rest_framework.status.HTTP_400_BAD_REQUEST,
-            )
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                return rest_framework.response.Response(
+                    {
+                        "errors": {
+                            "fields": serializer.errors,
+                            "form_error": None
+                        },
+                        "message": "Ошибка авторизации"
+                    },
+                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
+                )
 
-        user = serializer.validated_data["user"]
-        django.contrib.auth.login(request, user)
-        return core.utils.success_response(
-            message="Вход выполнен успешно",
-            http_status=rest_framework.status.HTTP_200_OK,
-        )
+            user = serializer.validated_data["user"]
+            django.contrib.auth.login(request, user)
+            
+            return rest_framework.response.Response(
+                {
+                    "data": {},
+                    "message": "Вход выполнен успешно"
+                },
+                status=rest_framework.status.HTTP_200_OK,
+            )
+        except Exception as e:
+            # Временно включаем подробный вывод ошибок
+            import traceback
+            error_details = {
+                "error_type": str(type(e).__name__),
+                "error_message": str(e),
+                "traceback": traceback.format_exc()
+            }
+            
+            # Логируем ошибку
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(
+                f"Login error: {error_details['error_type']}: {error_details['error_message']}", 
+                exc_info=True
+            )
+            
+            return rest_framework.response.Response(
+                {
+                    "errors": {
+                        "form_error": "Внутренняя ошибка сервера",
+                        "debug_info": error_details  # Временно для отладки
+                    },
+                    "message": "Ошибка при входе в систему"
+                },
+                status=rest_framework.status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class LogoutView(rest_framework.views.APIView):

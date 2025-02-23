@@ -1,10 +1,8 @@
 import channels.generic.websocket
 import django.core.exceptions
-import django.utils.timezone
-import elasticsearch_dsl
 
-import support.documents
 import support.models
+import support.throttling
 import users.models
 
 
@@ -49,27 +47,9 @@ class ChatConsumer(channels.generic.websocket.AsyncJsonWebsocketConsumer):
                 )
                 return
 
-            ten_seconds_ago = (
-                django.utils.timezone.now()
-                - django.utils.timezone.timedelta(seconds=10)
-            )
-            ten_seconds_ago_iso = ten_seconds_ago.isoformat()
-
-            messages_count = (
-                support.documents.MessageDocument.search()
-                .query(
-                    "bool",
-                    filter=[
-                        elasticsearch_dsl.Q("match", user_id=self.user.id),
-                        elasticsearch_dsl.Q(
-                            "range", created_at={"gte": ten_seconds_ago_iso}
-                        ),
-                    ],
-                )
-                .count()
-            )
-
-            if messages_count > 10:
+            if not support.throttling.UserRateThrottle(
+                rate=10, period=10
+            ).allow_request(self.user.id):
                 await self.send_json(
                     {"type": "error", "message": "Слишком много сообщений"}
                 )
@@ -82,6 +62,10 @@ class ChatConsumer(channels.generic.websocket.AsyncJsonWebsocketConsumer):
             )
 
             await self.send_message(message)
+
+        elif message_type == "get_chat_history":
+            page = content.get("page", 1)
+            await self.send_chat_history(page)
 
     async def send_message(self, message):
         await self.channel_layer.group_send(
@@ -126,19 +110,23 @@ class ChatConsumer(channels.generic.websocket.AsyncJsonWebsocketConsumer):
     async def save_message(self, **kwargs):
         return await support.models.Message.objects.acreate(**kwargs)
 
-    async def get_chat_history(self):
+    async def get_chat_history(self, page=1):
         messages = []
+        start = (page - 1) * 50
+        end = page * 50
         async for message in (
             support.models.Message.objects.filter(chat_id=self.chat_id)
             .select_related(support.models.Message.user.field.name)
-            .order_by(f"-{support.models.Message.created_at.field.name}")[:50]
+            .order_by(f"-{support.models.Message.created_at.field.name}")[
+                start:end
+            ]
         ):
             messages.append(message)
 
         return messages
 
-    async def send_chat_history(self):
-        messages = await self.get_chat_history()
+    async def send_chat_history(self, page=1):
+        messages = await self.get_chat_history(page)
         await self.send_json(
             {
                 "type": "chat_history",
