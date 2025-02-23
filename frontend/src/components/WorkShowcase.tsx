@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -14,7 +13,7 @@ interface WorkItem {
 const works: WorkItem[] = [
   {
     id: 1,
-    title: "ВЫСОКОКАЧЕСТВЕННАЯ\nВЫШИВКА",
+    title: "КАЧЕСТВЕННАЯ\nВЫШИВКА",
     defaultImage: "https://static.tildacdn.com/tild6264-3235-4037-b934-653837643761/DSC09590_1.png",
     hoverImage: "https://static.tildacdn.com/tild6661-3139-4636-b132-346261343430/DSC09506.jpg",
     bgClass: "bg-gradient-to-b from-purple-300 to-purple-500",
@@ -22,7 +21,7 @@ const works: WorkItem[] = [
   },
   {
     id: 2,
-    title: "ВЫШИВКА\nПО ИНДИВИДУАЛЬНОМУ\nДИЗАЙНУ",
+    title: "КАСТОМНАЯ\nВЫШИВКА",
     defaultImage: "https://static.tildacdn.com/tild6364-3465-4632-b235-393033653337/bembi02124-min.jpg",
     hoverImage: "https://static.tildacdn.com/tild3236-3230-4134-b730-333431356436/bembi02111_1-min.jpg",
     bgClass: "bg-gradient-to-b from-gray-300 to-gray-600",
@@ -35,15 +34,7 @@ const works: WorkItem[] = [
     hoverImage: "https://static.tildacdn.com/tild3031-6166-4463-b032-363533646239/DSC09373.png",
     bgClass: "bg-gradient-to-b from-gray-400 to-gray-700",
     gridArea: "col-span-12 md:col-span-8 row-span-1",
-  },
-  {
-    id: 4,
-    title: "ВЫШИВКА\nНА ЛЮБЫХ ТКАНЯХ",
-    defaultImage: "https://static.tildacdn.com/tild6634-3030-4534-b664-613064303133/photo_2024-08-12_16-.jpg",
-    hoverImage: "https://static.tildacdn.com/tild6634-3030-4534-b664-613064303133/photo_2024-08-12_16-.jpg",
-    bgClass: "bg-gradient-to-b from-gray-300 to-gray-600",
-    gridArea: "col-span-12 row-span-1",
-  },
+  }
 ];
 
 const WorkShowcase = () => {
@@ -71,7 +62,11 @@ const WorkShowcase = () => {
               <motion.img
                 src={work.defaultImage}
                 alt={work.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                className={`absolute inset-0 w-full h-full object-cover ${
+                  work.id === 2 ? 'object-[center_70%]' : 
+                  work.id === 3 ? 'object-[center_40%]' : 
+                  'object-center'
+                }`}
                 initial={{ opacity: 1 }}
                 animate={{ opacity: hoveredId === work.id ? 0 : 1 }}
                 transition={{ duration: 0.3 }}
@@ -81,7 +76,11 @@ const WorkShowcase = () => {
               <motion.img
                 src={work.hoverImage}
                 alt={work.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                className={`absolute inset-0 w-full h-full object-cover ${
+                  work.id === 2 ? 'object-[center_82%]' : 
+                  work.id === 3 ? 'object-[center_46%]' : 
+                  'object-center'
+                }`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: hoveredId === work.id ? 1 : 0 }}
                 transition={{ duration: 0.3 }}
