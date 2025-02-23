@@ -40,23 +40,17 @@ const Process = () => {
           {steps.map((step, index) => (
             <div key={step.id} className="relative flex items-center">
               <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
+                initial={{ opacity: 0, y: 5 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                className="relative z-10 bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-200 w-full overflow-hidden"
+                transition={{ duration: 1, ease: "easeInOut", delay: index * 1 }}
+                className="relative z-10 bg-white rounded-xl p-6 shadow-md hover:shadow-lg w-full overflow-hidden"
               >
                 {/* Размытая цифра на фоне */}
                 <div className="absolute inset-0 flex items-center justify-center select-none pointer-events-none">
-                  <span className="text-[160px] font-bold text-gray-100 blur-[2px] opacity-60">
+                  <span className="text-[160px] font-bold text-gray-200 blur-[3px] opacity-70">
                     {step.id}
                   </span>
-                </div>
-
-                {/* Номер шага */}
-                <div className="absolute -top-3 -left-3 w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-lg text-lg font-medium shadow-md">
-                  {step.id}
                 </div>
                 
                 {/* Контент */}
@@ -78,7 +72,7 @@ const Process = () => {
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                    transition={{ duration: 1, delay: index *1, ease: "easeOut" }}
                   >
                     <ArrowRight 
                       className="w-8 h-8 text-blue-500" 

@@ -110,7 +110,7 @@ const MessageContent = ({ content, onImageLoad, onImageError }: MessageContentPr
           />
         </div>
       ))}
-      {text && <p className="whitespace-pre-wrap">{text}</p>}
+      {text && <p className="whitespace-pre-wrap break-words">{text}</p>}
     </div>
   );
 };

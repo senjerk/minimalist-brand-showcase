@@ -86,7 +86,7 @@ const ChatList = ({
           >
             <div className="flex flex-col">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="font-medium">#{chat.id} {chat.topic}</h3>
+                <h3 className="font-medium break-words">#{chat.id} {chat.topic}</h3>
                 <span className={`h-2 w-2 rounded-full ${
                   chat.is_active ? "bg-green-500" : "bg-gray-500"
                 }`} />
@@ -189,7 +189,7 @@ const Chats = () => {
   return (
     <div className="h-screen bg-background">
       <div className={cn(
-        "h-full",
+        "h-full overflow-hidden",
         isMobile ? "block" : "grid grid-cols-[300px_1fr]"
       )}>
         {!isMobile && (
