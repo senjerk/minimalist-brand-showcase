@@ -1,18 +1,22 @@
-
 export type OrderStatus = 
-  | "pending_payment"
-  | "awaiting_confirmation"
-  | "processing"
-  | "shipping"
-  | "delivered"
-  | "cancelled";
+  | "WP"  // Waiting Payment
+  | "PD"  // Paid
+  | "IW"  // In Work
+  | "DR"  // Delivery Ready
+  | "ID"  // In Delivery
+  | "DV"  // Delivered
+  | "CN"; // Cancelled
 
 export interface Order {
   id: string;
-  status: OrderStatus;
+  status: {
+    status: OrderStatus;
+    status_display: string;
+  };
   createdAt: string;
   updatedAt: string;
-  totalAmount: number;
+  totalAmount?: number;
+  total_sum?: number;
   trackingCode?: string;
   customer: {
     name: string;

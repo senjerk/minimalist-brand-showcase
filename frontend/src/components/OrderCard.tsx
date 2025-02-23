@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -20,13 +19,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const statusConfig: Record<OrderStatus, { color: string; label: string }> = {
-  pending_payment: { color: "bg-orange-500", label: "Ожидание оплаты" },
-  awaiting_confirmation: { color: "bg-yellow-500", label: "Ожидание подтверждения" },
-  processing: { color: "bg-blue-500", label: "В обработке" },
-  shipping: { color: "bg-green-300", label: "Доставляется" },
-  delivered: { color: "bg-green-500", label: "Доставлен" },
-  cancelled: { color: "bg-red-500", label: "Отменён" },
+const statusConfig: Record<OrderStatus, { label: string; color: string }> = {
+  WP: { label: "Ожидает оплаты", color: "text-yellow-600 bg-yellow-50" },
+  PD: { label: "Оплачен", color: "text-blue-600 bg-blue-50" },
+  IW: { label: "В работе", color: "text-purple-600 bg-purple-50" },
+  DR: { label: "Готов к отправке", color: "text-indigo-600 bg-indigo-50" },
+  ID: { label: "В доставке", color: "text-orange-600 bg-orange-50" },
+  DV: { label: "Доставлен", color: "text-green-600 bg-green-50" },
+  CN: { label: "Отменён", color: "text-red-600 bg-red-50" },
 };
 
 interface OrderCardProps {
@@ -38,7 +38,7 @@ interface OrderCardProps {
 
 const OrderCard = ({ order, isDetailed, onStatusChange, onStartChat }: OrderCardProps) => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<OrderStatus>(order.status);
+  const [status, setStatus] = useState<OrderStatus>(order.status.status);
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
     try {
@@ -47,12 +47,14 @@ const OrderCard = ({ order, isDetailed, onStatusChange, onStartChat }: OrderCard
       toast.success("Статус заказа обновлен");
     } catch (error) {
       toast.error("Не удалось обновить статус заказа");
-      setStatus(order.status);
+      setStatus(order.status.status);
     }
   };
 
   const displayItems = order.items.slice(0, 3);
   const remainingItems = order.items.length - 3;
+
+  const amount = order.totalAmount || order.total_sum;
 
   return (
     <Card className="relative overflow-hidden">
@@ -92,7 +94,7 @@ const OrderCard = ({ order, isDetailed, onStatusChange, onStartChat }: OrderCard
               <p className="font-semibold">{statusConfig[status].label}</p>
             )}
             <p className="text-lg font-bold mt-2">
-              {order.totalAmount.toLocaleString("ru-RU")} ₽
+              {amount?.toLocaleString("ru-RU")} ₽
             </p>
           </div>
         </div>

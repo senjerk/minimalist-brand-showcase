@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_CONFIG } from "@/config/api";
 import { OrdersResponse, Order } from "@/types/api";
 import { Loader2, LogOut, User, List, Settings, Shield, MessageCircle } from "lucide-react";
@@ -11,14 +11,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 const Profile = () => {
   const { logout, user } = useAuth();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<'orders' | 'settings'>('orders');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: ordersData, isLoading } = useQuery<OrdersResponse>({
-    queryKey: ['orders'],
+    queryKey: ['orders', currentPage],
     queryFn: async () => {
       const response = await fetch(
-        `${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}`,
+        `${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}?page=${currentPage}`,
         {
           credentials: 'include',
         }
@@ -26,7 +28,8 @@ const Profile = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch orders');
       }
-      return response.json();
+      const data = await response.json();
+      return data;
     },
     meta: {
       onError: () => {
@@ -54,6 +57,12 @@ const Profile = () => {
   };
 
   const handleStaffClick = () => {
+    queryClient.prefetchQuery({
+      queryKey: ['staff-orders'],
+      queryFn: async () => {
+        return { data: [] };
+      }
+    });
     navigate('/staff');
   };
 
@@ -61,8 +70,19 @@ const Profile = () => {
     navigate('/support');
   };
 
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    if (ordersData?.data.next) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
   const OrderCard = ({ order }: { order: Order }) => {
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+    const [isCancelling, setIsCancelling] = useState(false);
 
     const handlePayment = async () => {
       setIsLoadingPayment(true);
@@ -93,6 +113,36 @@ const Profile = () => {
       }
     };
 
+    const handleCancel = async () => {
+      setIsCancelling(true);
+      try {
+        const response = await fetch(
+          `${API_CONFIG.baseURL}${API_CONFIG.endpoints.orderDetail(order.id)}`,
+          {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: 'CN' }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to cancel order');
+        }
+
+        toast.success("Заказ успешно отменен");
+        // Обновляем данные
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+        toast.error("Не удалось отменить заказ");
+      } finally {
+        setIsCancelling(false);
+      }
+    };
+
     return (
       <div className="bg-white rounded-lg shadow p-6 space-y-4">
         <div className="flex justify-between items-start">
@@ -119,22 +169,40 @@ const Profile = () => {
 
         <div className="border-t pt-4 flex justify-between items-center">
           <span className="font-semibold">Итого: {order.total_sum} ₽</span>
-          {order.status.status === 'WP' && (
-            <Button
-              onClick={handlePayment}
-              className="bg-green-600 hover:bg-green-700"
-              disabled={isLoadingPayment}
-            >
-              {isLoadingPayment ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Загрузка...
-                </>
-              ) : (
-                'Оплатить'
-              )}
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {!['DV', 'CN'].includes(order.status.status) && (
+              <Button
+                variant="destructive"
+                onClick={handleCancel}
+                disabled={isCancelling}
+              >
+                {isCancelling ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Отмена...
+                  </>
+                ) : (
+                  'Отменить заказ'
+                )}
+              </Button>
+            )}
+            {order.status.status === 'WP' && (
+              <Button
+                onClick={handlePayment}
+                className="bg-green-600 hover:bg-green-700"
+                disabled={isLoadingPayment}
+              >
+                {isLoadingPayment ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Загрузка...
+                  </>
+                ) : (
+                  'Оплатить'
+                )}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -250,21 +318,51 @@ const Profile = () => {
       {activeSection === 'orders' && (
         <div>
           <h2 className="text-xl font-bold mb-4">История заказов</h2>
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          ) : ordersData?.data.results.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              У вас пока нет заказов
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {ordersData?.data.results.map((order) => (
-                <OrderCard key={order.id} order={order} />
-              ))}
-            </div>
-          )}
+          <div className="min-h-[500px]">
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : ordersData?.data.results.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                У вас пока нет заказов
+              </div>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  {ordersData?.data.results.map((order) => (
+                    <OrderCard key={order.id} order={order} />
+                  ))}
+                </div>
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="text-sm text-gray-500">
+                    Всего заказов: {ordersData?.data.count}
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="outline"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1 || isLoading}
+                      size="sm"
+                    >
+                      Предыдущая
+                    </Button>
+                    <span className="text-sm">
+                      Страница {currentPage} из {ordersData?.data.count ? Math.ceil(ordersData.data.count / 2) : 1}
+                    </span>
+                    <Button
+                      variant="outline"
+                      onClick={handleNextPage}
+                      disabled={!ordersData?.data.next || isLoading}
+                      size="sm"
+                    >
+                      Следующая
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
 
