@@ -58,7 +58,7 @@ const Footer = () => {
 
         <div className="mt-8 pt-8 border-t">
           <p className="text-center text-muted-foreground">
-            © {new Date().getFullYear()} Lovable. Все права защищены.
+            © {new Date().getFullYear()} ВышивАРТ. Все права защищены.
           </p>
         </div>
       </div>

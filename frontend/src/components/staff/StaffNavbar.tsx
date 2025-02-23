@@ -27,7 +27,7 @@ const StaffNavbar = () => {
         <div className="flex justify-between items-center h-16">
           <Link to="/staff" className="flex items-center space-x-2">
             <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
-              Lovable Staff
+              ВышивАРТ Staff
             </span>
           </Link>
           
