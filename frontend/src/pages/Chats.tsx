@@ -225,8 +225,8 @@ const Chats = () => {
   return (
     <div className="h-screen bg-background">
       <div className={cn(
-        "h-full",
-        isMobile ? "" : "grid grid-cols-[300px_1fr]"
+        "h-full relative",
+        isMobile ? "block" : "grid grid-cols-[300px_1fr]"
       )}>
         {isMobile ? (
           <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
@@ -240,7 +240,10 @@ const Chats = () => {
           </div>
         )}
         
-        <div className="h-full relative">
+        <div className={cn(
+          "h-full",
+          isMobile && "fixed inset-0 z-50 bg-background"
+        )}>
           {selectedChatId ? (
             <ChatDetail 
               id={selectedChatId} 

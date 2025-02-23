@@ -151,7 +151,7 @@ const ChatDetail = ({ id, onOpenSidebar }: { id: string; onOpenSidebar?: () => v
   };
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col fixed inset-0 bg-background">
       <div className="border-b bg-background z-10">
         <div className="flex items-center gap-3 p-4">
           {isMobile && (
@@ -172,7 +172,7 @@ const ChatDetail = ({ id, onOpenSidebar }: { id: string; onOpenSidebar?: () => v
 
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto min-h-0"
+        className="flex-1 overflow-y-auto min-h-0 relative"
       >
         <div className="space-y-4 p-4">
           {messages.map((message) => (
