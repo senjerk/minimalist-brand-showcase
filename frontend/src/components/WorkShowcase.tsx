@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -35,15 +34,7 @@ const works: WorkItem[] = [
     hoverImage: "https://static.tildacdn.com/tild3031-6166-4463-b032-363533646239/DSC09373.png",
     bgClass: "bg-gradient-to-b from-gray-400 to-gray-700",
     gridArea: "col-span-12 md:col-span-8 row-span-1",
-  },
-  {
-    id: 4,
-    title: "ВЫШИВКА\nНА ЛЮБЫХ ТКАНЯХ",
-    defaultImage: "https://static.tildacdn.com/tild6634-3030-4534-b664-613064303133/photo_2024-08-12_16-.jpg",
-    hoverImage: "https://static.tildacdn.com/tild6634-3030-4534-b664-613064303133/photo_2024-08-12_16-.jpg",
-    bgClass: "bg-gradient-to-b from-gray-300 to-gray-600",
-    gridArea: "col-span-12 row-span-1",
-  },
+  }
 ];
 
 const WorkShowcase = () => {
@@ -75,7 +66,11 @@ const WorkShowcase = () => {
               <motion.img
                 src={work.defaultImage}
                 alt={work.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                className={`absolute inset-0 w-full h-full object-cover ${
+                  work.id === 2 ? 'object-[center_70%]' : 
+                  work.id === 3 ? 'object-[center_40%]' : 
+                  'object-center'
+                }`}
                 initial={{ opacity: 1 }}
                 animate={{ opacity: hoveredId === work.id ? 0 : 1 }}
                 transition={{ duration: 0.3 }}
@@ -85,7 +80,11 @@ const WorkShowcase = () => {
               <motion.img
                 src={work.hoverImage}
                 alt={work.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                className={`absolute inset-0 w-full h-full object-cover ${
+                  work.id === 2 ? 'object-[center_83%]' : 
+                  work.id === 3 ? 'object-[center_45%]' : 
+                  'object-center'
+                }`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: hoveredId === work.id ? 1 : 0 }}
                 transition={{ duration: 0.3 }}
