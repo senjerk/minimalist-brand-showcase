@@ -1,14 +1,65 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Type } from "lucide-react";
+import { ImagePlus, Type, Construction } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Constructor = () => {
   const [text, setText] = useState("");
+  const [showNotification, setShowNotification] = useState(true);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+      <AnimatePresence>
+        {showNotification && (
+          <>
+            {/* Размытый фон */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 backdrop-blur-md bg-background/50 z-50"
+              onClick={() => setShowNotification(false)}
+            />
+            
+            {/* Уведомление */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", bounce: 0.3 }}
+              className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            >
+              <div className="bg-background/95 border rounded-xl p-6 max-w-lg w-full shadow-lg">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="bg-primary/10 p-3 rounded-full">
+                    <Construction className="h-8 w-8 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+                    Конструктор в разработке
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Мы усердно работаем над созданием удобного конструктора вышивки. 
+                    Скоро вы сможете создавать свои уникальные дизайны прямо здесь!
+                  </p>
+                  <div className="pt-4">
+                    <Button 
+                      onClick={() => setShowNotification(false)}
+                      variant="outline"
+                      className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                    >
+                      Понятно
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <h1 className="text-3xl font-bold mb-8">Конструктор вышивки</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
