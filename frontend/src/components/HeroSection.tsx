@@ -43,16 +43,23 @@ const HeroSection = () => {
               >
                 <Link
                   to="/constructor"
-                  className="inline-flex items-center px-8 py-4 border-2 border-purple-300 text-lg font-medium rounded-full text-white bg-purple-600/80 hover:bg-purple-700/90 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-purple-500/20"
+                  className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white overflow-hidden rounded-full transition-all duration-300"
                 >
-                  Создать свой дизайн
+                  {/* Градиентный фон */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-300 group-hover:opacity-90" />
+                  
+                  {/* Анимированная обводка */}
+                  <div className="absolute inset-0 rounded-full border-2 border-purple-300/50 opacity-0 group-hover:opacity-100 transition-all duration-300 animate-pulse" />
+                  
+                  {/* Внутреннее свечение при наведении */}
+                  <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 bg-white blur transition-all duration-300" />
+                  
+                  {/* Текст кнопки */}
+                  <span className="relative">Создать свой дизайн</span>
                 </Link>
               </motion.div>
             </div>
           </motion.div>
-
-          {/* Decorative Elements */}
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
         </div>
       </section>
     </div>
