@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Send, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Cookies from 'js-cookie';
@@ -93,6 +92,13 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
   const [userData, setUserData] = useState<User | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -113,15 +119,11 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
 
       if (data.type === 'chat_message') {
         setMessages(prev => [...prev, data.message]);
-        if (!isMobile) {
-          messagesEndRef.current?.scrollIntoView();
-        }
+        scrollToBottom();
       } else if (data.type === 'chat_history') {
         setMessages(data.messages);
         setUserData(data.user);
-        if (!isMobile) {
-          messagesEndRef.current?.scrollIntoView();
-        }
+        scrollToBottom();
       }
     };
 
@@ -139,7 +141,7 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
     return () => {
       ws.close();
     };
-  }, [id, isMobile]);
+  }, [id]);
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,8 +155,8 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
-      <div className="border-b pb-4 mb-4 flex-shrink-0">
+    <div className="flex flex-col h-full">
+      <div className="border-b pb-4 mb-4">
         <div className="flex items-center gap-3">
           {isMobile && (
             <Button
@@ -172,10 +174,10 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
         </div>
       </div>
 
-      <ScrollArea className={cn(
-        "flex-1 pr-4",
-        isMobile ? "h-[calc(100vh-8rem)]" : "h-[calc(100vh-12rem)]"
-      )}>
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto pr-4 min-h-0"
+      >
         <div className="space-y-4 pb-4">
           {messages.map((message) => (
             <ChatMessage 
@@ -186,7 +188,7 @@ const ChatDetail = ({ id, onOpenSidebar }: ChatDetailProps) => {
           ))}
           <div ref={messagesEndRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       <form onSubmit={sendMessage} className="mt-4 flex gap-2 pt-4 border-t">
         <Input

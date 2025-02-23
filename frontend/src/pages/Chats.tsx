@@ -227,10 +227,10 @@ const Chats = () => {
   );
 
   return (
-    <div className="h-[calc(100vh-4rem)] overflow-hidden">
+    <div className="h-screen">
       <div className={cn(
         "h-full",
-        isMobile ? "block" : "grid grid-cols-[300px_1fr] gap-6"
+        isMobile ? "block" : "grid grid-cols-[300px_1fr] gap-6 p-6"
       )}>
         {isMobile ? (
           <>
