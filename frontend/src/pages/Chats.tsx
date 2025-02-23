@@ -227,25 +227,18 @@ const Chats = () => {
         "h-full relative",
         isMobile ? "block" : "flex"
       )}>
-        {/* Левая панель со списком чатов */}
-        <div className={cn(
-          isMobile ? (
-            // Мобильная версия - выдвижная панель
-            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-              <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
-                {ChatListComponent}
-              </SheetContent>
-            </Sheet>
-          ) : (
-            // Десктопная версия - фиксированная левая панель
-            <div className="w-[300px] h-full border-r overflow-hidden p-6 flex-shrink-0">
+        {isMobile ? (
+          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6">
               {ChatListComponent}
-            </div>
-          )
-        )}>
-        </div>
+            </SheetContent>
+          </Sheet>
+        ) : (
+          <div className="w-[300px] h-full border-r overflow-hidden p-6 flex-shrink-0">
+            {ChatListComponent}
+          </div>
+        )}
 
-        {/* Правая панель с чатом */}
         <div className={cn(
           "flex-1 h-full relative",
           isMobile && "fixed inset-0 z-50 bg-background"
