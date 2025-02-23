@@ -405,22 +405,22 @@ const Checkout = () => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Адрес доставки*</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Индекс, Город, улица, Дом, квартира"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Адрес доставки*</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Индекс, Город, улица, Дом, квартира"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
               <FormField
                 control={form.control}

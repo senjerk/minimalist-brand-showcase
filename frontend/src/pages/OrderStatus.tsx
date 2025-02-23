@@ -6,19 +6,21 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const OrderStatus = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const { clearCart } = useCart();
+  const successNotificationShown = useRef(false);
 
   // Проверяем параметры успешной оплаты
   useEffect(() => {
     const success = searchParams.get('success');
-    if (success === 'true') {
+    if (success === 'true' && !successNotificationShown.current) {
       clearCart();
       toast.success("Заказ успешно оплачен!");
+      successNotificationShown.current = true;
     }
   }, [searchParams, clearCart]);
 

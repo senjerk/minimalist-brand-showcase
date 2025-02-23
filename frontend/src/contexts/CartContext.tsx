@@ -85,10 +85,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (quantity < 1) return;
 
     try {
-      // Получаем cart_item_id из составного id (product_id-garment_id)
       const [productId, garmentId] = id.split('-');
       
-      // Находим cart_item_id по product_id и garment_id
       const cartItem = items.find(item => item.id === id);
       if (!cartItem) return;
 
@@ -104,11 +102,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
+        if (data.errors?.form_error === "Недостаточно товара на складе") {
+          toast.error("Недостаточно товара на складе");
+          return;
+        }
         throw new Error('Failed to update cart item');
       }
 
-      // Обновляем локальное состояние только после успешного запроса
       setItems(currentItems =>
         currentItems.map(item =>
           item.id === id ? { ...item, quantity } : item
@@ -140,7 +143,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Failed to remove cart item');
       }
 
-      // Обновляем локальное состояние только после успешного запроса
       setItems(currentItems => currentItems.filter(item => item.id !== id));
       toast.success("Товар удален из корзины");
     } catch (error) {

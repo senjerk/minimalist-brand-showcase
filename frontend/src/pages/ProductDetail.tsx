@@ -105,40 +105,31 @@ const ProductDetail = () => {
     try {
       const headers = await addCSRFToken();
 
-      const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.cart.add}`, {
-        method: 'POST',
-        headers,
-        credentials: 'include',
-        body: JSON.stringify({
-          id_product: product.id,
-          id_garment: selectedGarment.id,
-          quantity: 1,
-        }),
-      });
+      const response = await fetch(
+        `${API_CONFIG.baseURL}${API_CONFIG.endpoints.cart.add}`,
+        {
+          method: "POST",
+          headers,
+          credentials: "include",
+          body: JSON.stringify({
+            id_product: Number(id),
+            id_garment: selectedGarment.id,
+            quantity: 1,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        if (errorData.fields) {
-          const errors = Object.values(errorData.fields).join(', ');
-          throw new Error(errors);
-        }
-        throw new Error('Failed to add to cart');
+        throw new Error("Failed to add item to cart");
       }
 
-      addItem({
-        id: `${product.id}-${selectedGarment.id}`,
-        name: product.name,
-        price: selectedGarment.price,
-        quantity: 1,
-        image: getFullImageUrl(product.main_image),
-        color: selectedGarment.color.name,
-        size: selectedGarment.size,
-      });
-
       toast.success("Товар добавлен в корзину");
+      
+      // Перезагружаем страницу после успешного добавления
+      window.location.reload();
     } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast.error(error instanceof Error ? error.message : "Не удалось добавить товар в корзину");
+      console.error("Error adding item to cart:", error);
+      toast.error("Не удалось добавить товар в корзину");
     }
   };
 
