@@ -241,14 +241,16 @@ const Chats = () => {
         )}
         
         <div className={cn(
-          "h-full",
+          "h-full relative",
           isMobile && "fixed inset-0 z-50 bg-background"
         )}>
           {selectedChatId ? (
-            <ChatDetail 
-              id={selectedChatId} 
-              onOpenSidebar={() => setIsSidebarOpen(true)}
-            />
+            <div className="absolute inset-0">
+              <ChatDetail 
+                id={selectedChatId} 
+                onOpenSidebar={() => setIsSidebarOpen(true)}
+              />
+            </div>
           ) : (
             <div className="flex items-center justify-center h-full text-muted-foreground">
               Выберите чат для начала общения
