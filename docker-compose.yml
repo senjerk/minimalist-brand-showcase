@@ -109,7 +109,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_SECURITY_ADMIN_USER=admin
       - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_SERVER_ROOT_URL=https://127.0.0.1/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     depends_on:
       - elasticsearch
 
