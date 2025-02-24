@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 const statusConfig: Record<OrderStatus, { label: string }> = {
   WP: { label: "Ожидает оплаты" },
@@ -21,106 +22,76 @@ const statusConfig: Record<OrderStatus, { label: string }> = {
   CN: { label: "Отменён" },
 };
 
-// Временные моковые данные
-export const mockOrders = {
+interface ApiResponse {
   data: {
-    results: [
-      {
-        id: "ORD-001",
-        status: {
-          status: "IW" as OrderStatus,
-          status_display: "В работе"
-        },
-        createdAt: "2024-02-13T10:00:00",
-        updatedAt: "2024-02-13T10:00:00",
-        totalAmount: 15990,
-        customer: {
-          name: "Иван Иванов",
-          phone: "+7 (999) 123-45-67",
-          address: "г. Москва, ул. Пушкина, д. 1"
-        },
-        items: [
-          {
-            id: "ITEM-001",
-            name: "Футболка",
-            quantity: 2,
-            price: 1990,
-            color: "Белый",
-            size: "L"
-          },
-          {
-            id: "ITEM-002",
-            name: "Джинсы",
-            quantity: 1,
-            price: 4990,
-            color: "Синий",
-            size: "32"
-          }
-        ]
-      },
-      {
-        id: "ORD-002",
-        status: {
-          status: "WP" as OrderStatus,
-          status_display: "Ожидает оплаты"
-        },
-        createdAt: "2024-02-13T11:00:00",
-        updatedAt: "2024-02-13T11:00:00",
-        totalAmount: 23970,
-        customer: {
-          name: "Мария Петрова",
-          phone: "+7 (999) 765-43-21",
-          address: "г. Санкт-Петербург, пр. Невский, д. 100"
-        },
-        items: [
-          {
-            id: "ITEM-003",
-            name: "Куртка",
-            quantity: 1,
-            price: 12990,
-            color: "Черный",
-            size: "M"
-          },
-          {
-            id: "ITEM-004",
-            name: "Шапка",
-            quantity: 2,
-            price: 1990,
-            color: "Серый"
-          },
-          {
-            id: "ITEM-005",
-            name: "Перчатки",
-            quantity: 1,
-            price: 990,
-            color: "Черный",
-            size: "L"
-          }
-        ]
-      }
-    ]
-  }
-};
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: Array<{
+      id: number;
+      status: {
+        status: OrderStatus;
+        status_display: string;
+      };
+      address: string;
+      total_sum: number;
+      items: Array<{
+        id: number;
+        product: {
+          id: number;
+          name: string;
+          main_image: string;
+          secondary_image: string;
+          price: number;
+        };
+        garment: {
+          id: number;
+          category: {
+            id: number;
+            name: string;
+          };
+          color: {
+            id: number;
+            name: string;
+            color: string;
+          };
+          size: string;
+          count: number;
+          price: number;
+        };
+        quantity: number;
+        price: number;
+        total_price: number;
+      }>;
+    }>;
+  };
+  message: string;
+}
 
 const StaffOrders = () => {
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "_all">("_all");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: ordersData, isLoading, isError } = useQuery({
-    queryKey: ['staff-orders'],
+  const { data: ordersData, isLoading } = useQuery<ApiResponse>({
+    queryKey: ['staff-orders', selectedStatus, currentPage],
     queryFn: async () => {
-      // В реальном приложении здесь будет API запрос
-      return mockOrders;
-    },
-    refetchOnMount: true,
-    retry: 1
+      const statusParam = selectedStatus !== "_all" ? `status=${selectedStatus}` : '';
+      const response = await fetch(
+        `https://127.0.0.1/api/staff/orders/?page=${currentPage}${statusParam ? '&' + statusParam : ''}`
+      );
+      if (!response.ok) {
+        throw new Error('Ошибка загрузки заказов');
+      }
+      return response.json();
+    }
   });
 
-  if (!ordersData?.data?.results) {
+  if (isLoading || !ordersData?.data?.results) {
     return (
       <div className="container mx-auto px-4 py-8 space-y-4">
         <Skeleton className="h-8 w-48" />
         <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
+          {[1, 2].map((i) => (
             <Skeleton key={i} className="h-[200px] w-full" />
           ))}
         </div>
@@ -128,14 +99,7 @@ const StaffOrders = () => {
     );
   }
 
-  const orders = ordersData.data.results.map(order => ({
-    ...order,
-    totalAmount: order.totalAmount
-  }));
-  
-  const filteredOrders = selectedStatus === "_all" 
-    ? orders 
-    : orders.filter(order => order.status.status === selectedStatus);
+  const totalPages = Math.ceil(ordersData.data.count / 2);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -158,15 +122,53 @@ const StaffOrders = () => {
         </div>
 
         <div className="space-y-4">
-          {filteredOrders.map((order) => (
-            <OrderCard key={order.id} order={order} />
+          {ordersData.data.results.map((order) => (
+            <OrderCard 
+              key={order.id} 
+              order={{
+                id: order.id.toString(),
+                status: order.status,
+                totalAmount: order.total_sum,
+                items: order.items.map(item => ({
+                  id: item.id.toString(),
+                  name: item.product.name,
+                  quantity: item.quantity,
+                  price: item.price,
+                  image: item.product.main_image,
+                  color: item.garment.color.name,
+                  size: item.garment.size
+                }))
+              }} 
+            />
           ))}
-          {filteredOrders.length === 0 && (
+          {ordersData.data.results.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               Заказы не найдены
             </div>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Назад
+            </Button>
+            <span className="py-2 px-4">
+              Страница {currentPage} из {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Вперед
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

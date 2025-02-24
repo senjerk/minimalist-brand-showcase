@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  baseURL: 'https://5.35.80.52',
+  baseURL: 'https://127.0.0.1',
   endpoints: {
     csrf: '/api/get-csrf-token/',
     products: '/api/catalog/products/',
@@ -23,5 +23,8 @@ export const API_CONFIG = {
     users: {
       search: '/api/users/search/',
     },
-  }
-};
+    staff: {  
+      chats: '/api/staff/support/chats/',
+    },
+  },
+} as const;

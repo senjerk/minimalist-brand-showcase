@@ -89,7 +89,7 @@ const Process = () => {
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                    transition={{ duration: 1, delay: index*1, ease: "easeOut" }}
                   >
                     <ArrowRight 
                       className="w-8 h-8 text-blue-500 transform rotate-90" 

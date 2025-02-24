@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -22,8 +21,11 @@ const StaffOrderDetail = () => {
   const { data: order, isLoading } = useQuery({
     queryKey: ['order', id],
     queryFn: async () => {
-      // В реальном приложении здесь будет API запрос
-      return mockOrders.find(order => order.id === id);
+      const response = await fetch(`https://127.0.0.1/api/staff/orders/${id}/`);
+      if (!response.ok) {
+        throw new Error('Ошибка загрузки заказа');
+      }
+      return response.json();
     }
   });
 
