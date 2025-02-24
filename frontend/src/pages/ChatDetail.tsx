@@ -258,8 +258,13 @@ const ChatDetail = ({
 
     setIsChatLoading(true);
     const csrftoken = Cookies.get('csrftoken');
+    
+    // Используем WSS вместо WS
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/support/chat/${id}/`;
+    
     const ws = new WebSocket(
-      `ws://45.153.190.195/ws/support/chat/${id}/`,
+      wsUrl,
       ['X-CSRFToken', csrftoken]
     );
 

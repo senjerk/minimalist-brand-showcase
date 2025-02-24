@@ -20,3 +20,8 @@ clear:
 
 compose-up:
 	sudo docker compose up --build 
+
+commit:
+	git add .
+	git commit -m "test"
+	git push 

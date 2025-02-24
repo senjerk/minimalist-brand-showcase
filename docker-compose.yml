@@ -10,6 +10,8 @@ services:
       - static_volume:/usr/share/nginx/html/staticfiles
     depends_on:
       - django
+    environment:
+      - NGINX_SSL=true
 
   django:
     build: 
@@ -26,6 +28,8 @@ services:
     environment:
       - POSTGRES_HOST=db
       - ELASTICSEARCH_HOST=http://elasticsearch:9200
+      - DJANGO_SETTINGS_MODULE=backend.settings
+      - USE_HTTPS=true
     depends_on:
       elasticsearch:
         condition: service_healthy
