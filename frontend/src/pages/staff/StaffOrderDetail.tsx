@@ -21,7 +21,7 @@ const StaffOrderDetail = () => {
   const { data: order, isLoading } = useQuery({
     queryKey: ['order', id],
     queryFn: async () => {
-      const response = await fetch(`https://127.0.0.1/api/staff/orders/${id}/`);
+      const response = await fetch(`https://5.35.80.52/api/staff/orders/${id}/`);
       if (!response.ok) {
         throw new Error('Ошибка загрузки заказа');
       }
