@@ -77,7 +77,7 @@ const StaffOrders = () => {
     queryFn: async () => {
       const statusParam = selectedStatus !== "_all" ? `status=${selectedStatus}` : '';
       const response = await fetch(
-        `https://127.0.0.1/api/staff/orders/?page=${currentPage}${statusParam ? '&' + statusParam : ''}`
+        `https://5.35.80.52/api/staff/orders/?page=${currentPage}${statusParam ? '&' + statusParam : ''}`
       );
       if (!response.ok) {
         throw new Error('Ошибка загрузки заказов');
