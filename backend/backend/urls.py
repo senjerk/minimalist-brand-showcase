@@ -2,6 +2,9 @@ import django.conf
 import django.conf.urls.static
 import django.contrib.admin
 import django.urls
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path, include
 
 
 urlpatterns = [
@@ -17,16 +20,9 @@ urlpatterns = [
     ),
 ]
 
-
-if django.conf.settings.DEBUG:
-    urlpatterns += (
-        django.urls.path(
-            "__debug__/",
-            django.urls.include("debug_toolbar.urls"),
-        ),
+# Обрабатываем медиа файлы всегда, а не только в DEBUG
+if settings.MEDIA_ROOT:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT,
     )
-    if django.conf.settings.MEDIA_ROOT:
-        urlpatterns += django.conf.urls.static.static(
-            django.conf.settings.MEDIA_URL,
-            document_root=django.conf.settings.MEDIA_ROOT,
-        )

@@ -199,8 +199,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-MEDIA_ROOT = BASE_DIR / "media"
-MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 STATIC_URL = "static/django/"
 
@@ -326,3 +326,7 @@ GRAFANA_URL = os.getenv("GRAFANA_URL", "http://grafana:3000")
 GRAFANA_API_KEY = os.getenv("GRAFANA_API_KEY", None)
 
 ELASTICSEARCH_LOG_INDEX_PATTERN = "django-logs-*"
+
+# Добавим настройку для обработки файлов
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755

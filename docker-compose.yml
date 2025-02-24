@@ -6,7 +6,6 @@ services:
     volumes:
       - ./nginx/cert.pem:/etc/nginx/cert.pem
       - ./nginx/key.pem:/etc/nginx/key.pem
-      - ./media:/usr/share/nginx/html/media
       - ./nginx/html:/usr/share/nginx/html
       - static_volume:/usr/share/nginx/html/staticfiles
     depends_on:
