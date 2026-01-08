@@ -1,4 +1,52 @@
 services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/cert.pem:/etc/nginx/cert.pem
+      - ./nginx/key.pem:/etc/nginx/key.pem
+      - ./nginx/html:/usr/share/nginx/html
+      - static_volume:/usr/share/nginx/html/staticfiles
+    depends_on:
+      - django
+    environment:
+      - NGINX_SSL=true
+
+  django:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ./media:/app/media
+      - static_volume:/app/backend/staticfiles
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env.development
+    environment:
+      - POSTGRES_HOST=db
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+      - DJANGO_SETTINGS_MODULE=backend.settings
+      - USE_HTTPS=true
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  react:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - django
+
   celery:
     build:
       context: ./backend
