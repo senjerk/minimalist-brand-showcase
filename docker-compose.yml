@@ -126,3 +126,4 @@ volumes:
   postgres_data:
   elasticsearch_data:
   grafana_data:
+  static_volume:
