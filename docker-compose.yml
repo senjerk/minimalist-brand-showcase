@@ -63,7 +63,7 @@ services:
       - "6379:6379"
 
   db:
-    image: postgres:latest
+    image: postgres:16
     env_file:
       - ./backend/.env.development
     volumes:
