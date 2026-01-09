@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  baseURL: 'https://144.31.103.61', //  5.35.80.52
+  baseURL: 'https://vishiv.art', //  5.35.80.52
   endpoints: {
     csrf: '/api/get-csrf-token/',
     products: '/api/catalog/products/',
