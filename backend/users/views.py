@@ -68,7 +68,6 @@ class LoginView(rest_framework.generics.GenericAPIView):
                 status=rest_framework.status.HTTP_200_OK,
             )
         except Exception as e:
-            # Временно включаем подробный вывод ошибок
             import traceback
             error_details = {
                 "error_type": str(type(e).__name__),
@@ -76,7 +75,6 @@ class LoginView(rest_framework.generics.GenericAPIView):
                 "traceback": traceback.format_exc()
             }
             
-            # Логируем ошибку
             import logging
             logger = logging.getLogger(__name__)
             logger.error(
@@ -215,3 +213,11 @@ class UserSearchView(rest_framework.views.APIView):
         return core.utils.success_response(
             message="Пользователи найдены", data=users_data
         )
+
+
+class UserMeView(rest_framework.generics.RetrieveAPIView):
+    serializer_class = users.serializers.MeSerializer
+    permission_classes = (rest_framework.permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user

@@ -45,4 +45,9 @@ urlpatterns = [
         users.views.UserSearchView.as_view(),
         name="user_search",
     ),
+    django.urls.path(
+        "users/me/",
+        users.views.UserMeView.as_view(),
+        name="user_search",
+    ),
 ]

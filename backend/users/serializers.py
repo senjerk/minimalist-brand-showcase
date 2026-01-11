@@ -178,3 +178,14 @@ class PasswordResetConfirmSerializer(rest_framework.serializers.Serializer):
         password = self.validated_data.get("password")
         user.set_password(password)
         user.save()
+
+
+class MeSerializer(rest_framework.serializers.ModelSerializer):
+    class Meta:
+        model = users.models.User
+        fields = [
+            users.models.User.id.field.name,
+            users.models.User.username.field.name,
+            users.models.User.email.field.name,
+            users.models.User.email.field.name,
+        ]
