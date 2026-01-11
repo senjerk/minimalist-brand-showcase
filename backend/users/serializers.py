@@ -187,5 +187,5 @@ class MeSerializer(rest_framework.serializers.ModelSerializer):
             users.models.User.id.field.name,
             users.models.User.username.field.name,
             users.models.User.email.field.name,
-            users.models.User.email.field.name,
+            users.models.User.is_superuser.field.name,
         ]
